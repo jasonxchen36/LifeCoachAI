@@ -1,0 +1,1729 @@
+//
+//  MLManager.swift
+//  LifeCoachAI
+//
+//  Created for LifeCoach AI MVP
+//
+
+import Foundation
+import CoreML
+import CreateML
+import SwiftUI
+import CoreData
+import Combine
+import HealthKit
+import os.log
+import NaturalLanguage
+
+/// Manager class for handling all machine learning functionality and recommendations
+class MLManager: ObservableObject {
+    // MARK: - Published Properties
+    
+    /// Whether models are loaded
+    @Published var areModelsLoaded = false
+    
+    /// Whether models are being updated
+    @Published var isUpdatingModels = false
+    
+    /// Whether recommendations are being generated
+    @Published var isGeneratingRecommendations = false
+    
+    /// Error message if ML operations fail
+    @Published var errorMessage: String?
+    
+    /// Today's recommendations
+    @Published var todayRecommendations: [RecommendationViewModel] = []
+    
+    /// High priority recommendations
+    @Published var highPriorityRecommendations: [RecommendationViewModel] = []
+    
+    /// Recommendation categories distribution
+    @Published var recommendationCategoryDistribution: [String: Int] = [:]
+    
+    /// Recommendation acceptance rate
+    @Published var recommendationAcceptanceRate: Double = 0.0
+    
+    /// Last model update date
+    @Published var lastModelUpdateDate: Date?
+    
+    /// Last recommendation generation date
+    @Published var lastRecommendationDate: Date?
+    
+    /// User sentiment trend (7-day)
+    @Published var sentimentTrend: [Date: Double] = [:]
+    
+    // MARK: - Private Properties
+    
+    /// Logger for debugging
+    private let logger = Logger(subsystem: "com.lifecoach.ai", category: "MLManager")
+    
+    /// Core Data context for accessing health data and saving recommendations
+    private var viewContext: NSManagedObjectContext?
+    
+    /// Sentiment analysis model
+    private var sentimentAnalysisModel: NLModel?
+    
+    /// Activity classification model
+    private var activityClassificationModel: MLModel?
+    
+    /// Sleep quality prediction model
+    private var sleepQualityModel: MLModel?
+    
+    /// Recommendation models by category
+    private var categoryModels: [String: MLModel] = [:]
+    
+    /// Model update task
+    private var modelUpdateTask: Task<Void, Error>?
+    
+    /// Recommendation generation task
+    private var recommendationTask: Task<Void, Error>?
+    
+    /// Cancellables for Combine subscriptions
+    private var cancellables = Set<AnyCancellable>()
+    
+    /// Rule engine for backup recommendations
+    private let ruleEngine = RecommendationRuleEngine()
+    
+    /// User profile for personalization
+    private var userProfile: UserProfile?
+    
+    /// Model version information
+    private struct ModelVersion {
+        let name: String
+        let version: Int
+        let lastUpdated: Date
+        let fileURL: URL?
+    }
+    
+    /// Dictionary of model versions
+    private var modelVersions: [String: ModelVersion] = [:]
+    
+    // MARK: - Initialization
+    
+    init() {
+        logger.info("Initializing MLManager")
+        
+        // Register for notifications
+        registerForNotifications()
+        
+        // Check if running in simulator
+        #if targetEnvironment(simulator)
+        logger.info("Running in simulator - will use mock data")
+        loadMockData()
+        #endif
+    }
+    
+    /// Set the Core Data context
+    func setViewContext(_ context: NSManagedObjectContext) {
+        self.viewContext = context
+        
+        // Load user profile
+        loadUserProfile()
+        
+        // Load existing recommendations
+        loadExistingRecommendations()
+    }
+    
+    // MARK: - User Profile
+    
+    /// Load user profile from Core Data
+    private func loadUserProfile() {
+        guard let context = viewContext else {
+            logger.error("Cannot load user profile: Core Data context not available")
+            return
+        }
+        
+        let fetchRequest: NSFetchRequest<UserProfile> = UserProfile.fetchRequest()
+        
+        do {
+            let profiles = try context.fetch(fetchRequest)
+            
+            if let profile = profiles.first {
+                userProfile = profile
+                logger.info("Loaded user profile")
+            } else {
+                logger.warning("No user profile found")
+            }
+        } catch {
+            logger.error("Failed to fetch user profile: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Model Loading
+    
+    /// Load all ML models
+    func loadModels() {
+        logger.info("Loading ML models")
+        
+        // Set loading state
+        areModelsLoaded = false
+        
+        // Load models in background
+        Task {
+            do {
+                // Load sentiment analysis model
+                try await loadSentimentAnalysisModel()
+                
+                // Load activity classification model
+                try await loadActivityClassificationModel()
+                
+                // Load sleep quality model
+                try await loadSleepQualityModel()
+                
+                // Load category models
+                try await loadCategoryModels()
+                
+                // Update model versions
+                updateModelVersionInfo()
+                
+                // Set models loaded state
+                await MainActor.run {
+                    areModelsLoaded = true
+                    errorMessage = nil
+                    logger.info("All ML models loaded successfully")
+                }
+                
+                // Check for model updates
+                checkForModelUpdates()
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to load ML models: \(error.localizedDescription)"
+                    logger.error("Failed to load ML models: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    /// Load sentiment analysis model
+    private func loadSentimentAnalysisModel() async throws {
+        // Try to load custom model if available
+        if let customModelURL = try? findCustomModelURL(named: "SentimentAnalysis") {
+            do {
+                sentimentAnalysisModel = try NLModel(contentsOf: customModelURL)
+                logger.info("Loaded custom sentiment analysis model")
+                return
+            } catch {
+                logger.error("Failed to load custom sentiment model: \(error.localizedDescription)")
+                // Fall back to default model
+            }
+        }
+        
+        // Load default model
+        sentimentAnalysisModel = try NLModel(mlModel: SentimentClassifier().model)
+        logger.info("Loaded default sentiment analysis model")
+    }
+    
+    /// Load activity classification model
+    private func loadActivityClassificationModel() async throws {
+        // Try to load custom model if available
+        if let customModelURL = try? findCustomModelURL(named: "ActivityClassifier") {
+            do {
+                activityClassificationModel = try MLModel(contentsOf: customModelURL)
+                logger.info("Loaded custom activity classification model")
+                return
+            } catch {
+                logger.error("Failed to load custom activity model: \(error.localizedDescription)")
+                // Fall back to default model
+            }
+        }
+        
+        // Use mock model in simulator
+        #if targetEnvironment(simulator)
+        // In simulator, we don't need a real model
+        logger.info("Using mock activity classification model in simulator")
+        #else
+        // Load default model
+        activityClassificationModel = try MLModel(contentsOf: ActivityClassifier().model.modelURL)
+        logger.info("Loaded default activity classification model")
+        #endif
+    }
+    
+    /// Load sleep quality prediction model
+    private func loadSleepQualityModel() async throws {
+        // Try to load custom model if available
+        if let customModelURL = try? findCustomModelURL(named: "SleepQualityPredictor") {
+            do {
+                sleepQualityModel = try MLModel(contentsOf: customModelURL)
+                logger.info("Loaded custom sleep quality model")
+                return
+            } catch {
+                logger.error("Failed to load custom sleep quality model: \(error.localizedDescription)")
+                // Fall back to default model
+            }
+        }
+        
+        // Use mock model in simulator
+        #if targetEnvironment(simulator)
+        // In simulator, we don't need a real model
+        logger.info("Using mock sleep quality model in simulator")
+        #else
+        // Load default model
+        sleepQualityModel = try MLModel(contentsOf: SleepQualityPredictor().model.modelURL)
+        logger.info("Loaded default sleep quality model")
+        #endif
+    }
+    
+    /// Load category-specific recommendation models
+    private func loadCategoryModels() async throws {
+        let categories = GoalCategory.allCases
+        
+        for category in categories {
+            let categoryName = category.rawValue
+            
+            // Try to load custom model if available
+            if let customModelURL = try? findCustomModelURL(named: "\(categoryName)Recommender") {
+                do {
+                    categoryModels[categoryName] = try MLModel(contentsOf: customModelURL)
+                    logger.info("Loaded custom \(categoryName) recommendation model")
+                    continue
+                } catch {
+                    logger.error("Failed to load custom \(categoryName) model: \(error.localizedDescription)")
+                    // Fall back to default model
+                }
+            }
+            
+            // For simulator, we don't need real models
+            #if targetEnvironment(simulator)
+            logger.info("Using mock \(categoryName) recommendation model in simulator")
+            #else
+            // In a real app, we would load default models here
+            // But for now, we'll use rule-based recommendations
+            logger.info("No model available for \(categoryName), will use rule-based recommendations")
+            #endif
+        }
+    }
+    
+    /// Find custom model URL in app documents directory
+    private func findCustomModelURL(named modelName: String) throws -> URL? {
+        let fileManager = FileManager.default
+        
+        // Check documents directory for custom models
+        guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            logger.error("Could not access documents directory")
+            return nil
+        }
+        
+        let modelsDirectory = documentsDirectory.appendingPathComponent("MLModels", isDirectory: true)
+        
+        // Check if models directory exists
+        var isDirectory: ObjCBool = false
+        if !fileManager.fileExists(atPath: modelsDirectory.path, isDirectory: &isDirectory) || !isDirectory.boolValue {
+            // Models directory doesn't exist
+            return nil
+        }
+        
+        // Look for model file
+        let modelURL = modelsDirectory.appendingPathComponent("\(modelName).mlmodel")
+        if fileManager.fileExists(atPath: modelURL.path) {
+            return modelURL
+        }
+        
+        // Look for compiled model
+        let compiledModelURL = modelsDirectory.appendingPathComponent("\(modelName).mlmodelc")
+        if fileManager.fileExists(atPath: compiledModelURL.path) {
+            return compiledModelURL
+        }
+        
+        return nil
+    }
+    
+    /// Update model version information
+    private func updateModelVersionInfo() {
+        let fileManager = FileManager.default
+        
+        // Check documents directory for model versions
+        guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return
+        }
+        
+        let modelsDirectory = documentsDirectory.appendingPathComponent("MLModels", isDirectory: true)
+        let versionFile = modelsDirectory.appendingPathComponent("versions.json")
+        
+        if fileManager.fileExists(atPath: versionFile.path) {
+            do {
+                let data = try Data(contentsOf: versionFile)
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                
+                // Parse version info
+                let versionInfo = try decoder.decode([String: ModelVersion].self, from: data)
+                modelVersions = versionInfo
+                
+                // Update last model update date
+                if let latestUpdate = modelVersions.values.map({ $0.lastUpdated }).max() {
+                    lastModelUpdateDate = latestUpdate
+                }
+                
+                logger.info("Loaded model version information")
+            } catch {
+                logger.error("Failed to load model version information: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    // MARK: - Model Updates
+    
+    /// Check for model updates from cloud
+    func checkForModelUpdates() {
+        guard !isUpdatingModels else {
+            logger.info("Model update already in progress")
+            return
+        }
+        
+        logger.info("Checking for model updates")
+        
+        // Set updating state
+        isUpdatingModels = true
+        
+        // Cancel any existing task
+        modelUpdateTask?.cancel()
+        
+        // Create new task
+        modelUpdateTask = Task {
+            do {
+                // Simulate network request to check for updates
+                try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+                
+                // In a real app, we would check a server endpoint for updates
+                // For now, we'll simulate finding updates for some models
+                
+                // Check if user is premium
+                let isPremium = userProfile?.isPremium ?? false
+                
+                // Determine which models to update
+                var modelsToUpdate: [String] = []
+                
+                // Always update sentiment model
+                modelsToUpdate.append("SentimentAnalysis")
+                
+                // Update activity model for premium users
+                if isPremium {
+                    modelsToUpdate.append("ActivityClassifier")
+                    modelsToUpdate.append("SleepQualityPredictor")
+                }
+                
+                // Update category models
+                if isPremium {
+                    modelsToUpdate.append(contentsOf: GoalCategory.allCases.map { "\($0.rawValue)Recommender" })
+                } else {
+                    // For free users, only update a subset
+                    modelsToUpdate.append("PhysicalRecommender")
+                    modelsToUpdate.append("MentalRecommender")
+                }
+                
+                // Download and install updates
+                for modelName in modelsToUpdate {
+                    if Task.isCancelled {
+                        break
+                    }
+                    
+                    try await downloadAndInstallModelUpdate(for: modelName)
+                }
+                
+                // Update model versions
+                updateModelVersionInfo()
+                
+                // Reload models
+                try await reloadUpdatedModels()
+                
+                // Update last update date
+                await MainActor.run {
+                    lastModelUpdateDate = Date()
+                    isUpdatingModels = false
+                    logger.info("Model updates completed")
+                }
+            } catch {
+                await MainActor.run {
+                    if !Task.isCancelled {
+                        errorMessage = "Failed to update models: \(error.localizedDescription)"
+                        logger.error("Failed to update models: \(error.localizedDescription)")
+                    }
+                    isUpdatingModels = false
+                }
+            }
+        }
+    }
+    
+    /// Download and install model update
+    private func downloadAndInstallModelUpdate(for modelName: String) async throws {
+        // In a real app, we would download the model from a server
+        // For now, we'll simulate the download
+        
+        logger.info("Downloading update for \(modelName)")
+        
+        // Simulate download time
+        try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        
+        // Simulate successful download
+        logger.info("Successfully downloaded update for \(modelName)")
+        
+        // In a real app, we would save the model to the documents directory
+    }
+    
+    /// Reload updated models
+    private func reloadUpdatedModels() async throws {
+        // Reload sentiment analysis model
+        try await loadSentimentAnalysisModel()
+        
+        // Reload activity classification model
+        try await loadActivityClassificationModel()
+        
+        // Reload sleep quality model
+        try await loadSleepQualityModel()
+        
+        // Reload category models
+        try await loadCategoryModels()
+    }
+    
+    // MARK: - Recommendation Generation
+    
+    /// Generate daily recommendations
+    func generateDailyRecommendations() async throws {
+        guard !isGeneratingRecommendations else {
+            logger.info("Recommendation generation already in progress")
+            return
+        }
+        
+        guard let context = viewContext else {
+            throw MLError.contextNotAvailable
+        }
+        
+        logger.info("Generating daily recommendations")
+        
+        // Set generating state
+        await MainActor.run {
+            isGeneratingRecommendations = true
+        }
+        
+        // Cancel any existing task
+        recommendationTask?.cancel()
+        
+        // Create new task
+        recommendationTask = Task {
+            do {
+                // Get health data
+                let healthMetrics = try await fetchRecentHealthMetrics()
+                
+                // Get mood data
+                let moodEntries = try await fetchRecentMoodEntries()
+                
+                // Get goals
+                let goals = try await fetchActiveGoals()
+                
+                // Generate recommendations
+                var newRecommendations: [Recommendation] = []
+                
+                // Generate health-based recommendations
+                let healthRecommendations = try await generateHealthBasedRecommendations(
+                    from: healthMetrics,
+                    goals: goals
+                )
+                newRecommendations.append(contentsOf: healthRecommendations)
+                
+                // Generate mood-based recommendations
+                let moodRecommendations = try await generateMoodBasedRecommendations(
+                    from: moodEntries,
+                    goals: goals
+                )
+                newRecommendations.append(contentsOf: moodRecommendations)
+                
+                // Generate goal-based recommendations
+                let goalRecommendations = try await generateGoalBasedRecommendations(
+                    from: goals,
+                    healthMetrics: healthMetrics
+                )
+                newRecommendations.append(contentsOf: goalRecommendations)
+                
+                // Save recommendations to Core Data
+                for recommendation in newRecommendations {
+                    // Find user profile to associate with
+                    let profileRequest: NSFetchRequest<UserProfile> = UserProfile.fetchRequest()
+                    if let userProfile = try? context.fetch(profileRequest).first {
+                        recommendation.userProfile = userProfile
+                    }
+                }
+                
+                try context.save()
+                
+                // Update recommendation view models
+                await updateRecommendationViewModels()
+                
+                // Update last recommendation date
+                await MainActor.run {
+                    lastRecommendationDate = Date()
+                    isGeneratingRecommendations = false
+                    logger.info("Generated \(newRecommendations.count) recommendations")
+                }
+            } catch {
+                await MainActor.run {
+                    if !Task.isCancelled {
+                        errorMessage = "Failed to generate recommendations: \(error.localizedDescription)"
+                        logger.error("Failed to generate recommendations: \(error.localizedDescription)")
+                    }
+                    isGeneratingRecommendations = false
+                }
+            }
+        }
+    }
+    
+    /// Generate health-based recommendations
+    private func generateHealthBasedRecommendations(
+        from healthMetrics: [HealthMetric],
+        goals: [Goal]
+    ) async throws -> [Recommendation] {
+        var recommendations: [Recommendation] = []
+        
+        // Group metrics by type
+        let metricsByType = Dictionary(grouping: healthMetrics) { $0.metricType ?? "" }
+        
+        // Check steps
+        if let stepsMetrics = metricsByType[HealthMetricType.steps.rawValue],
+           let latestSteps = stepsMetrics.sorted(by: { $0.date ?? Date.distantPast > $1.date ?? Date.distantPast }).first {
+            
+            // Check if steps are below target
+            let stepsValue = latestSteps.value
+            let stepsGoal = 10000.0 // Default goal
+            
+            // Find user's step goal if available
+            let userStepsGoal = goals.first(where: { $0.title?.contains("Steps") ?? false })?.targetValue ?? stepsGoal
+            
+            if stepsValue < userStepsGoal * 0.7 && Date().hour > 16 {
+                // Create recommendation
+                let recommendation = createRecommendation(
+                    title: "Take a walk",
+                    description: "You've only reached \(Int(stepsValue)) steps today. A 10-minute walk would help you get closer to your goal of \(Int(userStepsGoal)) steps.",
+                    category: .physical,
+                    priority: 2,
+                    confidence: 0.85,
+                    actionType: "activity"
+                )
+                
+                // Add health metric relationship
+                recommendation.addToHealthMetrics(latestSteps)
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        // Check sleep
+        if let sleepMetrics = metricsByType[HealthMetricType.sleepHours.rawValue],
+           let latestSleep = sleepMetrics.sorted(by: { $0.date ?? Date.distantPast > $1.date ?? Date.distantPast }).first {
+            
+            // Check if sleep is below target
+            let sleepHours = latestSleep.value
+            let sleepGoal = 8.0 // Default goal
+            
+            if sleepHours < sleepGoal - 1.0 {
+                // Create recommendation
+                let recommendation = createRecommendation(
+                    title: "Improve sleep quality",
+                    description: "You slept \(String(format: "%.1f", sleepHours)) hours last night, which is below your target. Try a sleep meditation before bed tonight.",
+                    category: .sleep,
+                    priority: sleepHours < 6.0 ? 3 : 2,
+                    confidence: 0.9,
+                    actionType: "sleep"
+                )
+                
+                // Add health metric relationship
+                recommendation.addToHealthMetrics(latestSleep)
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        // Check water intake
+        if let waterMetrics = metricsByType[HealthMetricType.waterIntake.rawValue],
+           let latestWater = waterMetrics.sorted(by: { $0.date ?? Date.distantPast > $1.date ?? Date.distantPast }).first {
+            
+            // Check if water intake is below target
+            let waterIntake = latestWater.value
+            let waterGoal = 2000.0 // Default goal (ml)
+            
+            if waterIntake < waterGoal * 0.6 && Date().hour > 14 {
+                // Create recommendation
+                let recommendation = createRecommendation(
+                    title: "Drink more water",
+                    description: "You've only consumed \(Int(waterIntake))ml of water today, which is \(Int((waterIntake / waterGoal) * 100))% of your daily goal. Stay hydrated for better focus and energy.",
+                    category: .nutrition,
+                    priority: 2,
+                    confidence: 0.8,
+                    actionType: "hydration"
+                )
+                
+                // Add health metric relationship
+                recommendation.addToHealthMetrics(latestWater)
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        // Check mindful minutes
+        if let mindfulMetrics = metricsByType[HealthMetricType.mindfulMinutes.rawValue],
+           let latestMindful = mindfulMetrics.sorted(by: { $0.date ?? Date.distantPast > $1.date ?? Date.distantPast }).first {
+            
+            // Check if mindful minutes are below target
+            let mindfulMinutes = latestMindful.value
+            let mindfulGoal = 10.0 // Default goal
+            
+            if mindfulMinutes < 1.0 && Date().hour > 17 {
+                // Create recommendation
+                let recommendation = createRecommendation(
+                    title: "Take a mindfulness break",
+                    description: "You haven't recorded any mindfulness minutes today. A short 5-minute meditation can help reduce stress and improve focus.",
+                    category: .mindfulness,
+                    priority: 1,
+                    confidence: 0.75,
+                    actionType: "meditation"
+                )
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        // Check heart rate (if available)
+        if let heartRateMetrics = metricsByType[HealthMetricType.heartRate.rawValue],
+           let latestHeartRate = heartRateMetrics.sorted(by: { $0.date ?? Date.distantPast > $1.date ?? Date.distantPast }).first {
+            
+            // Check if heart rate is elevated
+            let heartRate = latestHeartRate.value
+            
+            if heartRate > 90 {
+                // Create recommendation
+                let recommendation = createRecommendation(
+                    title: "Take a moment to breathe",
+                    description: "Your heart rate has been elevated recently. Try a quick breathing exercise to help calm your body and mind.",
+                    category: .mindfulness,
+                    priority: heartRate > 100 ? 3 : 2,
+                    confidence: 0.7,
+                    actionType: "breathing"
+                )
+                
+                // Add health metric relationship
+                recommendation.addToHealthMetrics(latestHeartRate)
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        return recommendations
+    }
+    
+    /// Generate mood-based recommendations
+    private func generateMoodBasedRecommendations(
+        from moodEntries: [MoodEntry],
+        goals: [Goal]
+    ) async throws -> [Recommendation] {
+        var recommendations: [Recommendation] = []
+        
+        // Check if we have mood entries
+        guard !moodEntries.isEmpty else {
+            // Create recommendation to log mood
+            let recommendation = createRecommendation(
+                title: "Track your mood",
+                description: "You haven't logged your mood recently. Taking a moment to reflect on how you're feeling can help you understand your emotional patterns.",
+                category: .mental,
+                priority: 1,
+                confidence: 0.8,
+                actionType: "moodLogging"
+            )
+            
+            recommendations.append(recommendation)
+            return recommendations
+        }
+        
+        // Sort mood entries by date (newest first)
+        let sortedEntries = moodEntries.sorted { ($0.date ?? Date.distantPast) > ($1.date ?? Date.distantPast) }
+        
+        // Get latest mood entry
+        if let latestMood = sortedEntries.first {
+            // Check mood score
+            let moodScore = latestMood.moodScore
+            
+            if moodScore <= 2 {
+                // Low mood, suggest mood-lifting activities
+                let recommendation = createRecommendation(
+                    title: "Boost your mood",
+                    description: "You've been feeling down recently. Try a short walk outside, listen to uplifting music, or practice gratitude to help improve your mood.",
+                    category: .mental,
+                    priority: 3,
+                    confidence: 0.85,
+                    actionType: "moodBoost"
+                )
+                
+                // Add mood entry relationship
+                recommendation.addToMoodEntries(latestMood)
+                
+                recommendations.append(recommendation)
+            }
+            
+            // Check for mood factors
+            if let factors = latestMood.factors as? [String], factors.contains("Stress") {
+                // Stress factor, suggest stress reduction
+                let recommendation = createRecommendation(
+                    title: "Reduce stress",
+                    description: "You've mentioned stress as a factor affecting your mood. Try a guided stress reduction meditation or deep breathing exercise.",
+                    category: .mental,
+                    priority: 2,
+                    confidence: 0.8,
+                    actionType: "stressReduction"
+                )
+                
+                // Add mood entry relationship
+                recommendation.addToMoodEntries(latestMood)
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        // Check mood trend
+        if sortedEntries.count >= 3 {
+            // Calculate average mood over last 3 entries
+            let recentMoods = sortedEntries.prefix(3)
+            let averageMood = Double(recentMoods.reduce(0) { $0 + $1.moodScore }) / Double(recentMoods.count)
+            
+            if averageMood < 2.5 {
+                // Persistent low mood, suggest more significant intervention
+                let recommendation = createRecommendation(
+                    title: "Prioritize self-care",
+                    description: "Your mood has been consistently low recently. Consider prioritizing self-care activities like exercise, social connection, or speaking with a professional.",
+                    category: .mental,
+                    priority: 3,
+                    confidence: 0.9,
+                    actionType: "selfCare"
+                )
+                
+                recommendations.append(recommendation)
+            }
+        }
+        
+        return recommendations
+    }
+    
+    /// Generate goal-based recommendations
+    private func generateGoalBasedRecommendations(
+        from goals: [Goal],
+        healthMetrics: [HealthMetric]
+    ) async throws -> [Recommendation] {
+        var recommendations: [Recommendation] = []
+        
+        // Check each active goal
+        for goal in goals where goal.isActive {
+            // Check goal progress
+            let progress = goal.currentProgress / goal.targetValue
+            
+            // Get days until due date
+            var daysUntilDue = 0
+            if let dueDate = goal.dueDate {
+                daysUntilDue = Calendar.current.dateComponents([.day], from: Date(), to: dueDate).day ?? 0
+            }
+            
+            // Check if goal is behind schedule
+            if progress < 0.5 && daysUntilDue <= 2 && daysUntilDue >= 0 {
+                // Goal is significantly behind and due soon
+                let recommendation = createRecommendation(
+                    title: "Focus on \(goal.title ?? "your goal")",
+                    description: "You're only at \(Int(progress * 100))% of your goal for \(goal.title ?? "this activity"), and it's due in \(daysUntilDue) day(s). Try to prioritize this goal today.",
+                    category: GoalCategory(rawValue: goal.category ?? "Other") ?? .other,
+                    priority: 3,
+                    confidence: 0.9,
+                    actionType: "goalFocus"
+                )
+                
+                // Add goal relationship
+                recommendation.addToRelatedGoals(goal)
+                
+                recommendations.append(recommendation)
+            }
+            
+            // Check if goal has had no progress recently
+            if progress < 0.1 && goal.creationDate?.timeIntervalSinceNow ?? 0 < -86400 {
+                // Goal has been created for at least a day but has almost no progress
+                let recommendation = createRecommendation(
+                    title: "Start your \(goal.title ?? "goal")",
+                    description: "You haven't made much progress on your \(goal.title ?? "goal") yet. Even a small step today will help build momentum.",
+                    category: GoalCategory(rawValue: goal.category ?? "Other") ?? .other,
+                    priority: 2,
+                    confidence: 0.8,
+                    actionType: "goalStart"
+                )
+                
+                // Add goal relationship
+                recommendation.addToRelatedGoals(goal)
+                
+                recommendations.append(recommendation)
+            }
+            
+            // For physical goals, check if there's relevant health data
+            if goal.category == GoalCategory.physical.rawValue {
+                // Check if goal is related to steps
+                if goal.title?.contains("Steps") ?? false || goal.title?.contains("Walking") ?? false {
+                    // Find latest steps data
+                    let stepsMetrics = healthMetrics.filter { $0.metricType == HealthMetricType.steps.rawValue }
+                    if let latestSteps = stepsMetrics.sorted(by: { $0.date ?? Date.distantPast > $1.date ?? Date.distantPast }).first {
+                        
+                        // Calculate steps needed to reach goal
+                        let currentSteps = latestSteps.value
+                        let targetSteps = goal.targetValue
+                        let stepsNeeded = targetSteps - currentSteps
+                        
+                        if stepsNeeded > 0 && Date().hour > 17 {
+                            // Create recommendation
+                            let recommendation = createRecommendation(
+                                title: "Complete your step goal",
+                                description: "You need \(Int(stepsNeeded)) more steps to reach your daily goal. A \(Int(stepsNeeded / 100)) minute walk should do it!",
+                                category: .physical,
+                                priority: 2,
+                                confidence: 0.85,
+                                actionType: "steps"
+                            )
+                            
+                            // Add relationships
+                            recommendation.addToRelatedGoals(goal)
+                            recommendation.addToHealthMetrics(latestSteps)
+                            
+                            recommendations.append(recommendation)
+                        }
+                    }
+                }
+            }
+        }
+        
+        return recommendations
+    }
+    
+    /// Create a new recommendation object
+    private func createRecommendation(
+        title: String,
+        description: String,
+        category: GoalCategory,
+        priority: Int,
+        confidence: Double,
+        actionType: String
+    ) -> Recommendation {
+        guard let context = viewContext else {
+            fatalError("Core Data context not available")
+        }
+        
+        let recommendation = Recommendation(context: context)
+        recommendation.id = UUID()
+        recommendation.title = title
+        recommendation.desc = description
+        recommendation.category = category.rawValue
+        recommendation.priority = Int16(priority)
+        recommendation.confidence = confidence
+        recommendation.actionType = actionType
+        recommendation.creationDate = Date()
+        recommendation.status = RecommendationStatus.active.rawValue
+        recommendation.isViewed = false
+        recommendation.actionTaken = false
+        
+        // Set expiration date (24 hours from now)
+        recommendation.expirationDate = Date().addingTimeInterval(86400)
+        
+        // Set premium flag
+        recommendation.isPremium = priority >= 3 || confidence > 0.9
+        
+        return recommendation
+    }
+    
+    // MARK: - Data Fetching
+    
+    /// Fetch recent health metrics
+    private func fetchRecentHealthMetrics() async throws -> [HealthMetric] {
+        guard let context = viewContext else {
+            throw MLError.contextNotAvailable
+        }
+        
+        // Create fetch request
+        let fetchRequest: NSFetchRequest<HealthMetric> = HealthMetric.fetchRequest()
+        
+        // Get metrics from the last 7 days
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        
+        fetchRequest.predicate = NSPredicate(format: "date >= %@", sevenDaysAgo as NSDate)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+        
+        // Execute fetch request
+        return try context.fetch(fetchRequest)
+    }
+    
+    /// Fetch recent mood entries
+    private func fetchRecentMoodEntries() async throws -> [MoodEntry] {
+        guard let context = viewContext else {
+            throw MLError.contextNotAvailable
+        }
+        
+        // Create fetch request
+        let fetchRequest: NSFetchRequest<MoodEntry> = MoodEntry.fetchRequest()
+        
+        // Get entries from the last 7 days
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        
+        fetchRequest.predicate = NSPredicate(format: "date >= %@", sevenDaysAgo as NSDate)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+        
+        // Execute fetch request
+        return try context.fetch(fetchRequest)
+    }
+    
+    /// Fetch active goals
+    private func fetchActiveGoals() async throws -> [Goal] {
+        guard let context = viewContext else {
+            throw MLError.contextNotAvailable
+        }
+        
+        // Create fetch request
+        let fetchRequest: NSFetchRequest<Goal> = Goal.fetchRequest()
+        
+        // Get active goals
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "priority", ascending: false)]
+        
+        // Execute fetch request
+        return try context.fetch(fetchRequest)
+    }
+    
+    // MARK: - Recommendation Management
+    
+    /// Load existing recommendations
+    private func loadExistingRecommendations() {
+        guard let context = viewContext else {
+            logger.error("Cannot load recommendations: Core Data context not available")
+            return
+        }
+        
+        // Fetch active recommendations
+        let fetchRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "status == %@", RecommendationStatus.active.rawValue)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "priority", ascending: false)]
+        
+        do {
+            let recommendations = try context.fetch(fetchRequest)
+            
+            // Convert to view models
+            let viewModels = recommendations.compactMap { createRecommendationViewModel(from: $0) }
+            
+            // Update published properties
+            DispatchQueue.main.async {
+                self.todayRecommendations = viewModels
+                self.highPriorityRecommendations = viewModels.filter { $0.priority >= 2 }
+                self.updateRecommendationStats()
+                self.logger.info("Loaded \(viewModels.count) existing recommendations")
+            }
+        } catch {
+            logger.error("Failed to fetch recommendations: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Update recommendation view models
+    private func updateRecommendationViewModels() async {
+        guard let context = viewContext else {
+            return
+        }
+        
+        // Fetch active recommendations
+        let fetchRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "status == %@", RecommendationStatus.active.rawValue)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "priority", ascending: false)]
+        
+        do {
+            let recommendations = try context.fetch(fetchRequest)
+            
+            // Convert to view models
+            let viewModels = recommendations.compactMap { createRecommendationViewModel(from: $0) }
+            
+            // Update published properties
+            await MainActor.run {
+                todayRecommendations = viewModels
+                highPriorityRecommendations = viewModels.filter { $0.priority >= 2 }
+                updateRecommendationStats()
+            }
+        } catch {
+            logger.error("Failed to update recommendation view models: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Create recommendation view model from Core Data entity
+    private func createRecommendationViewModel(from recommendation: Recommendation) -> RecommendationViewModel? {
+        guard let id = recommendation.id,
+              let title = recommendation.title,
+              let description = recommendation.desc,
+              let category = recommendation.category,
+              let status = recommendation.status,
+              let creationDate = recommendation.creationDate else {
+            return nil
+        }
+        
+        return RecommendationViewModel(
+            id: id,
+            title: title,
+            description: description,
+            category: GoalCategory(rawValue: category) ?? .other,
+            priority: Int(recommendation.priority),
+            creationDate: creationDate,
+            status: RecommendationStatus(rawValue: status) ?? .active,
+            isPremium: recommendation.isPremium,
+            actionType: recommendation.actionType,
+            confidence: recommendation.confidence
+        )
+    }
+    
+    /// Update recommendation statistics
+    private func updateRecommendationStats() {
+        guard let context = viewContext else {
+            return
+        }
+        
+        // Update category distribution
+        let categoryRequest: NSFetchRequest<NSFetchRequestResult> = Recommendation.fetchRequest()
+        categoryRequest.resultType = .dictionaryResultType
+        categoryRequest.propertiesToGroupBy = ["category"]
+        categoryRequest.propertiesToFetch = ["category", "status"]
+        
+        do {
+            let results = try context.fetch(categoryRequest) as? [[String: Any]] ?? []
+            var distribution: [String: Int] = [:]
+            
+            for result in results {
+                if let category = result["category"] as? String {
+                    let count = result["count"] as? Int ?? 0
+                    distribution[category] = count
+                }
+            }
+            
+            recommendationCategoryDistribution = distribution
+        } catch {
+            logger.error("Failed to update category distribution: \(error.localizedDescription)")
+        }
+        
+        // Update acceptance rate
+        let acceptanceRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        acceptanceRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
+            NSPredicate(format: "status == %@", RecommendationStatus.accepted.rawValue),
+            NSPredicate(format: "status == %@", RecommendationStatus.declined.rawValue)
+        ])
+        
+        do {
+            let actedOnRecommendations = try context.fetch(acceptanceRequest)
+            let acceptedCount = actedOnRecommendations.filter { $0.status == RecommendationStatus.accepted.rawValue }.count
+            
+            if actedOnRecommendations.count > 0 {
+                recommendationAcceptanceRate = Double(acceptedCount) / Double(actedOnRecommendations.count)
+            } else {
+                recommendationAcceptanceRate = 0
+            }
+        } catch {
+            logger.error("Failed to update acceptance rate: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Sentiment Analysis
+    
+    /// Analyze text sentiment
+    func analyzeSentiment(text: String) -> Double {
+        guard let sentimentAnalysisModel = sentimentAnalysisModel else {
+            logger.warning("Sentiment analysis model not loaded")
+            return 0.5 // Neutral sentiment
+        }
+        
+        // Predict sentiment
+        let prediction = sentimentAnalysisModel.predictedLabel(for: text)
+        
+        // Convert prediction to score
+        switch prediction {
+        case "positive":
+            return 0.8
+        case "negative":
+            return 0.2
+        default:
+            return 0.5 // Neutral
+        }
+    }
+    
+    /// Analyze mood entry text
+    func analyzeMoodEntryText(_ text: String) -> [String: Double] {
+        var results: [String: Double] = [:]
+        
+        // Analyze overall sentiment
+        results["sentiment"] = analyzeSentiment(text: text)
+        
+        // Extract emotion keywords
+        let emotions = extractEmotions(from: text)
+        for (emotion, score) in emotions {
+            results[emotion] = score
+        }
+        
+        return results
+    }
+    
+    /// Extract emotions from text
+    private func extractEmotions(from text: String) -> [String: Double] {
+        var emotions: [String: Double] = [:]
+        
+        // Define emotion keywords
+        let emotionKeywords: [String: [String]] = [
+            "joy": ["happy", "joy", "excited", "great", "wonderful", "pleased", "delighted"],
+            "sadness": ["sad", "unhappy", "depressed", "down", "blue", "gloomy", "miserable"],
+            "anger": ["angry", "frustrated", "annoyed", "irritated", "mad", "furious"],
+            "fear": ["afraid", "scared", "worried", "anxious", "nervous", "terrified"],
+            "surprise": ["surprised", "shocked", "amazed", "astonished", "stunned"],
+            "disgust": ["disgusted", "revolted", "repulsed", "appalled"]
+        ]
+        
+        // Normalize text
+        let normalizedText = text.lowercased()
+        
+        // Check for each emotion
+        for (emotion, keywords) in emotionKeywords {
+            var score = 0.0
+            
+            for keyword in keywords {
+                if normalizedText.contains(keyword) {
+                    score += 0.2
+                }
+            }
+            
+            if score > 0 {
+                emotions[emotion] = min(score, 1.0)
+            }
+        }
+        
+        return emotions
+    }
+    
+    // MARK: - Activity Classification
+    
+    /// Classify activity from health data
+    func classifyActivity(from healthData: [HealthMetricViewModel]) -> String {
+        // In a real app, we would use the activity classification model
+        // For now, we'll use a simple rule-based approach
+        
+        // Check if we have steps data
+        if let stepsMetric = healthData.first(where: { $0.type == .steps }) {
+            let steps = stepsMetric.value
+            
+            if steps > 10000 {
+                return "very_active"
+            } else if steps > 7500 {
+                return "active"
+            } else if steps > 5000 {
+                return "moderately_active"
+            } else if steps > 2500 {
+                return "lightly_active"
+            } else {
+                return "sedentary"
+            }
+        }
+        
+        // Default
+        return "unknown"
+    }
+    
+    // MARK: - Sleep Quality Prediction
+    
+    /// Predict sleep quality based on habits
+    func predictSleepQuality(
+        bedTime: Date,
+        caffeine: Bool,
+        screenTime: TimeInterval,
+        exercise: Bool,
+        stress: Int
+    ) -> Double {
+        // In a real app, we would use the sleep quality prediction model
+        // For now, we'll use a simple rule-based approach
+        
+        var qualityScore = 0.75 // Base score
+        
+        // Check bed time
+        let hour = Calendar.current.component(.hour, from: bedTime)
+        if hour < 22 || hour > 2 {
+            qualityScore += 0.1
+        } else if hour > 0 {
+            qualityScore -= 0.1
+        }
+        
+        // Check caffeine
+        if caffeine {
+            qualityScore -= 0.1
+        }
+        
+        // Check screen time
+        if screenTime > 3600 { // More than 1 hour
+            qualityScore -= 0.1
+        }
+        
+        // Check exercise
+        if exercise {
+            qualityScore += 0.1
+        }
+        
+        // Check stress
+        qualityScore -= Double(stress) * 0.02
+        
+        // Clamp result
+        return min(max(qualityScore, 0.0), 1.0)
+    }
+    
+    // MARK: - Rule Engine
+    
+    /// Rule-based recommendation engine
+    private class RecommendationRuleEngine {
+        /// Generate physical activity recommendation
+        func generatePhysicalRecommendation(steps: Double, activeMinutes: Double, time: Date) -> (title: String, description: String, priority: Int)? {
+            let hour = Calendar.current.component(.hour, from: time)
+            
+            if steps < 3000 && hour > 16 {
+                return (
+                    "Take a walk",
+                    "You've been quite sedentary today. A 15-minute walk would boost your energy and mood.",
+                    2
+                )
+            } else if activeMinutes < 20 && hour > 14 {
+                return (
+                    "Get moving",
+                    "You haven't had much active time today. Even a short 10-minute workout can make a difference.",
+                    1
+                )
+            }
+            
+            return nil
+        }
+        
+        /// Generate sleep recommendation
+        func generateSleepRecommendation(sleepHours: Double, time: Date) -> (title: String, description: String, priority: Int)? {
+            let hour = Calendar.current.component(.hour, from: time)
+            
+            if sleepHours < 6 {
+                return (
+                    "Prioritize sleep tonight",
+                    "You only got \(String(format: "%.1f", sleepHours)) hours of sleep last night. Try to get to bed earlier tonight.",
+                    2
+                )
+            } else if hour > 21 && hour < 23 {
+                return (
+                    "Wind down for sleep",
+                    "It's getting close to bedtime. Consider a relaxing activity like reading or meditation to prepare for sleep.",
+                    1
+                )
+            }
+            
+            return nil
+        }
+        
+        /// Generate mindfulness recommendation
+        func generateMindfulnessRecommendation(mindfulMinutes: Double, time: Date) -> (title: String, description: String, priority: Int)? {
+            if mindfulMinutes < 1 {
+                return (
+                    "Take a mindful moment",
+                    "You haven't practiced mindfulness today. Even 5 minutes can help reduce stress and improve focus.",
+                    1
+                )
+            }
+            
+            return nil
+        }
+        
+        /// Generate nutrition recommendation
+        func generateNutritionRecommendation(waterIntake: Double, time: Date) -> (title: String, description: String, priority: Int)? {
+            let hour = Calendar.current.component(.hour, from: time)
+            
+            if waterIntake < 1000 && hour > 14 {
+                return (
+                    "Stay hydrated",
+                    "You've only consumed \(Int(waterIntake))ml of water today. Try to drink more water for better focus and energy.",
+                    1
+                )
+            }
+            
+            return nil
+        }
+    }
+    
+    // MARK: - Notification Observers
+    
+    /// Register for system notifications
+    private func registerForNotifications() {
+        // App will enter foreground notification
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    /// Handle app will enter foreground notification
+    @objc private func handleAppWillEnterForeground() {
+        // Check if recommendations need to be updated
+        if let lastDate = lastRecommendationDate {
+            let calendar = Calendar.current
+            if !calendar.isDateInToday(lastDate) {
+                // Last recommendations were not generated today
+                Task {
+                    try? await generateDailyRecommendations()
+                }
+            }
+        } else {
+            // No recommendations generated yet
+            Task {
+                try? await generateDailyRecommendations()
+            }
+        }
+    }
+    
+    // MARK: - Mock Data for Simulator
+    
+    /// Load mock data for simulator testing
+    private func loadMockData() {
+        logger.info("Loading mock ML data for simulator")
+        
+        // Set models loaded
+        areModelsLoaded = true
+        
+        // Set last model update date
+        lastModelUpdateDate = Date().addingTimeInterval(-86400 * 7) // 7 days ago
+        
+        // Generate mock recommendations
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            // Generate mock recommendations
+            self.generateMockRecommendations()
+            
+            // Generate mock sentiment trend
+            self.generateMockSentimentTrend()
+        }
+    }
+    
+    /// Generate mock recommendations
+    private func generateMockRecommendations() {
+        guard let context = viewContext else { return }
+        
+        // Check if we already have recommendations
+        let fetchRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        
+        do {
+            let existingRecommendations = try context.fetch(fetchRequest)
+            
+            if existingRecommendations.isEmpty {
+                // Create mock recommendations
+                createMockRecommendations(in: context)
+            } else {
+                // Use existing recommendations
+                let viewModels = existingRecommendations
+                    .filter { $0.status == RecommendationStatus.active.rawValue }
+                    .compactMap { createRecommendationViewModel(from: $0) }
+                
+                todayRecommendations = viewModels
+                highPriorityRecommendations = viewModels.filter { $0.priority >= 2 }
+                updateRecommendationStats()
+            }
+        } catch {
+            logger.error("Failed to check for existing recommendations: \(error.localizedDescription)")
+            
+            // Create mock recommendations anyway
+            createMockRecommendations(in: context)
+        }
+    }
+    
+    /// Create mock recommendations in Core Data
+    private func createMockRecommendations(in context: NSManagedObjectContext) {
+        // Create mock recommendations
+        let mockRecommendations: [(title: String, description: String, category: GoalCategory, priority: Int, actionType: String)] = [
+            (
+                "Take a walk",
+                "You've only reached 5,432 steps today. A 10-minute walk would help you get closer to your goal of 10,000 steps.",
+                .physical,
+                2,
+                "activity"
+            ),
+            (
+                "Drink more water",
+                "You've only consumed 750ml of water today, which is 38% of your daily goal. Stay hydrated for better focus and energy.",
+                .nutrition,
+                2,
+                "hydration"
+            ),
+            (
+                "Take a mindfulness break",
+                "You haven't recorded any mindfulness minutes today. A short 5-minute meditation can help reduce stress and improve focus.",
+                .mindfulness,
+                1,
+                "meditation"
+            ),
+            (
+                "Improve sleep quality",
+                "You slept 6.5 hours last night, which is below your target. Try a sleep meditation before bed tonight.",
+                .sleep,
+                2,
+                "sleep"
+            ),
+            (
+                "Schedule deep work",
+                "Your productivity peaks between 9-11 AM. Schedule your most important tasks during this window.",
+                .productivity,
+                1,
+                "schedule"
+            )
+        ]
+        
+        // Find user profile
+        var userProfile: UserProfile?
+        let profileRequest: NSFetchRequest<UserProfile> = UserProfile.fetchRequest()
+        
+        do {
+            let profiles = try context.fetch(profileRequest)
+            userProfile = profiles.first
+        } catch {
+            logger.error("Failed to fetch user profile: \(error.localizedDescription)")
+        }
+        
+        // Create recommendations
+        var createdRecommendations: [Recommendation] = []
+        
+        for mockRec in mockRecommendations {
+            let recommendation = Recommendation(context: context)
+            recommendation.id = UUID()
+            recommendation.title = mockRec.title
+            recommendation.desc = mockRec.description
+            recommendation.category = mockRec.category.rawValue
+            recommendation.priority = Int16(mockRec.priority)
+            recommendation.confidence = Double.random(in: 0.7...0.95)
+            recommendation.actionType = mockRec.actionType
+            recommendation.creationDate = Date()
+            recommendation.status = RecommendationStatus.active.rawValue
+            recommendation.isViewed = false
+            recommendation.actionTaken = false
+            recommendation.expirationDate = Date().addingTimeInterval(86400) // 24 hours
+            recommendation.isPremium = mockRec.priority >= 3
+            recommendation.userProfile = userProfile
+            
+            createdRecommendations.append(recommendation)
+        }
+        
+        // Save context
+        do {
+            try context.save()
+            
+            // Update view models
+            let viewModels = createdRecommendations.compactMap { createRecommendationViewModel(from: $0) }
+            todayRecommendations = viewModels
+            highPriorityRecommendations = viewModels.filter { $0.priority >= 2 }
+            updateRecommendationStats()
+            
+            logger.info("Created \(createdRecommendations.count) mock recommendations")
+        } catch {
+            logger.error("Failed to save mock recommendations: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Generate mock sentiment trend
+    private func generateMockSentimentTrend() {
+        var trend: [Date: Double] = [:]
+        
+        // Generate sentiment for the past 7 days
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        for day in 0..<7 {
+            if let date = calendar.date(byAdding: .day, value: -day, to: today) {
+                // Generate random sentiment with some pattern
+                var sentiment = Double.random(in: 0.3...0.8)
+                
+                // Make weekends slightly happier
+                let weekday = calendar.component(.weekday, from: date)
+                if weekday == 1 || weekday == 7 {
+                    sentiment += 0.1
+                }
+                
+                // Clamp to valid range
+                sentiment = min(max(sentiment, 0.0), 1.0)
+                
+                trend[date] = sentiment
+            }
+        }
+        
+        sentimentTrend = trend
+    }
+    
+    // MARK: - Public Methods
+    
+    /// Get recommendation for a specific category
+    func getRecommendationsForCategory(_ category: GoalCategory) -> [RecommendationViewModel] {
+        return todayRecommendations.filter { $0.category == category }
+    }
+    
+    /// Get high priority recommendations
+    func getHighPriorityRecommendations() -> [RecommendationViewModel] {
+        return highPriorityRecommendations
+    }
+    
+    /// Mark recommendation as viewed
+    func markRecommendationAsViewed(id: UUID) {
+        guard let context = viewContext else {
+            logger.error("Cannot mark recommendation as viewed: Core Data context not available")
+            return
+        }
+        
+        let fetchRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let recommendations = try context.fetch(fetchRequest)
+            
+            if let recommendation = recommendations.first {
+                recommendation.isViewed = true
+                
+                try context.save()
+                logger.info("Marked recommendation as viewed: \(id)")
+                
+                // Update view models
+                Task {
+                    await updateRecommendationViewModels()
+                }
+            }
+        } catch {
+            logger.error("Failed to mark recommendation as viewed: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Mark recommendation as accepted
+    func markRecommendationAsAccepted(id: UUID) {
+        guard let context = viewContext else {
+            logger.error("Cannot mark recommendation as accepted: Core Data context not available")
+            return
+        }
+        
+        let fetchRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let recommendations = try context.fetch(fetchRequest)
+            
+            if let recommendation = recommendations.first {
+                recommendation.status = RecommendationStatus.accepted.rawValue
+                recommendation.actionTaken = true
+                recommendation.isViewed = true
+                
+                try context.save()
+                logger.info("Marked recommendation as accepted: \(id)")
+                
+                // Update view models
+                Task {
+                    await updateRecommendationViewModels()
+                }
+            }
+        } catch {
+            logger.error("Failed to mark recommendation as accepted: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Mark recommendation as declined
+    func markRecommendationAsDeclined(id: UUID) {
+        guard let context = viewContext else {
+            logger.error("Cannot mark recommendation as declined: Core Data context not available")
+            return
+        }
+        
+        let fetchRequest: NSFetchRequest<Recommendation> = Recommendation.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let recommendations = try context.fetch(fetchRequest)
+            
+            if let recommendation = recommendations.first {
+                recommendation.status = RecommendationStatus.declined.rawValue
+                recommendation.actionTaken = false
+                recommendation.isViewed = true
+                
+                try context.save()
+                logger.info("Marked recommendation as declined: \(id)")
+                
+                // Update view models
+                Task {
+                    await updateRecommendationViewModels()
+                }
+            }
+        } catch {
+            logger.error("Failed to mark recommendation as declined: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Get recommendation effectiveness
+    func getRecommendationEffectiveness() -> Double {
+        return recommendationAcceptanceRate
+    }
+    
+    /// Get sentiment trend
+    func getSentimentTrend() -> [Date: Double] {
+        return sentimentTrend
+    }
+}
+
+// MARK: - Helper Extensions
+
+extension Date {
+    /// Get hour component of date
+    var hour: Int {
+        return Calendar.current.component(.hour, from: self)
+    }
+    
+    /// Get minute component of date
+    var minute: Int {
+        return Calendar.current.component(.minute, from: self)
+    }
+}
+
+// MARK: - Custom Errors
+
+enum MLError: Error, LocalizedError {
+    case modelLoadingFailed
+    case modelUpdateFailed
+    case recommendationGenerationFailed
+    case contextNotAvailable
+    case dataFetchFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .modelLoadingFailed:
+            return "Failed to load ML models"
+        case .modelUpdateFailed:
+            return "Failed to update ML models"
+        case .recommendationGenerationFailed:
+            return "Failed to generate recommendations"
+        case .contextNotAvailable:
+            return "Core Data context not available"
+        case .dataFetchFailed:
+            return "Failed to fetch data"
+        }
+    }
+}
+
+// MARK: - Mock Models
+
+/// Mock sentiment classifier for simulator
+class SentimentClassifier {
+    struct Model {
+        let modelURL = URL(string: "file:///mock/SentimentClassifier.mlmodel")!
+    }
+    
+    let model = Model()
+}
+
+/// Mock activity classifier for simulator
+class ActivityClassifier {
+    struct Model {
+        let modelURL = URL(string: "file:///mock/ActivityClassifier.mlmodel")!
+    }
+    
+    let model = Model()
+}
+
+/// Mock sleep quality predictor for simulator
+class SleepQualityPredictor {
+    struct Model {
+        let modelURL = URL(string: "file:///mock/SleepQualityPredictor.mlmodel")!
+    }
+    
+    let model = Model()
+}
