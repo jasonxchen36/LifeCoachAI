@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22F82" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Achievement" representedClassName="Achievement" syncable="YES" codeGenerationType="class">
+        <attribute name="achievedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="badgeImageName" optional="YES" attributeType="String"/>
+        <attribute name="category" attributeType="String"/>
+        <attribute name="desc" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isDisplayed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="level" optional="YES" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="achievements" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="AudioSession" representedClassName="AudioSession" syncable="YES" codeGenerationType="class">
+        <attribute name="audioFileName" attributeType="String"/>
+        <attribute name="category" attributeType="String"/>
+        <attribute name="completedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="duration" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isCompleted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isPremium" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="lastPlaybackPosition" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="subtitle" optional="YES" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="transcriptText" optional="YES" attributeType="String"/>
+        <relationship name="completions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SessionCompletion" inverseName="audioSession" inverseEntity="SessionCompletion"/>
+        <relationship name="goals" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Goal" inverseName="recommendedSessions" inverseEntity="Goal"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="audioSessions" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="Goal" representedClassName="Goal" syncable="YES" codeGenerationType="class">
+        <attribute name="category" attributeType="String"/>
+        <attribute name="completionDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="currentProgress" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="desc" optional="YES" attributeType="String"/>
+        <attribute name="dueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="frequency" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isActive" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="isCompleted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="priority" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="reminderTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" attributeType="String" defaultValueString="active"/>
+        <attribute name="targetValue" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <relationship name="healthMetrics" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="HealthMetric" inverseName="relatedGoals" inverseEntity="HealthMetric"/>
+        <relationship name="progressEntries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="GoalProgress" inverseName="goal" inverseEntity="GoalProgress"/>
+        <relationship name="recommendedSessions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="AudioSession" inverseName="goals" inverseEntity="AudioSession"/>
+        <relationship name="recommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="relatedGoals" inverseEntity="Recommendation"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="goals" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="GoalProgress" representedClassName="GoalProgress" syncable="YES" codeGenerationType="class">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="value" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="goal" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="progressEntries" inverseEntity="Goal"/>
+    </entity>
+    <entity name="HealthMetric" representedClassName="HealthMetric" syncable="YES" codeGenerationType="class">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="healthKitIdentifier" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isManualEntry" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="metricType" attributeType="String"/>
+        <attribute name="source" optional="YES" attributeType="String"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <attribute name="value" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="relatedGoals" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Goal" inverseName="healthMetrics" inverseEntity="Goal"/>
+        <relationship name="relatedRecommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="healthMetrics" inverseEntity="Recommendation"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="healthMetrics" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="MoodEntry" representedClassName="MoodEntry" syncable="YES" codeGenerationType="class">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="factors" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="moodScore" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
+        <relationship name="relatedRecommendations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recommendation" inverseName="moodEntries" inverseEntity="Recommendation"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="moodEntries" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="Recommendation" representedClassName="Recommendation" syncable="YES" codeGenerationType="class">
+        <attribute name="actionTaken" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="actionType" optional="YES" attributeType="String"/>
+        <attribute name="category" attributeType="String"/>
+        <attribute name="confidence" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="desc" attributeType="String"/>
+        <attribute name="expirationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isPremium" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isViewed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="priority" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="reasonText" optional="YES" attributeType="String"/>
+        <attribute name="recommendedTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" attributeType="String" defaultValueString="active"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="healthMetrics" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="HealthMetric" inverseName="relatedRecommendations" inverseEntity="HealthMetric"/>
+        <relationship name="moodEntries" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MoodEntry" inverseName="relatedRecommendations" inverseEntity="MoodEntry"/>
+        <relationship name="relatedGoals" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Goal" inverseName="recommendations" inverseEntity="Goal"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="recommendations" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="SessionCompletion" representedClassName="SessionCompletion" syncable="YES" codeGenerationType="class">
+        <attribute name="completionDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="durationSeconds" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="rating" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="audioSession" maxCount="1" deletionRule="Nullify" destinationEntity="AudioSession" inverseName="completions" inverseEntity="AudioSession"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="sessionCompletions" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="Streak" representedClassName="Streak" syncable="YES" codeGenerationType="class">
+        <attribute name="category" attributeType="String"/>
+        <attribute name="currentCount" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastUpdatedDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="longestCount" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="userProfile" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="streaks" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="Subscription" representedClassName="Subscription" syncable="YES" codeGenerationType="class">
+        <attribute name="expirationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isActive" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="originalPurchaseDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="productId" attributeType="String"/>
+        <attribute name="purchaseDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="receiptData" optional="YES" attributeType="Binary"/>
+        <attribute name="type" attributeType="String"/>
+        <relationship name="userProfile" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="subscription" inverseEntity="UserProfile"/>
+    </entity>
+    <entity name="UserProfile" representedClassName="UserProfile" syncable="YES" codeGenerationType="class">
+        <attribute name="birthDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="firstName" optional="YES" attributeType="String"/>
+        <attribute name="gender" optional="YES" attributeType="String"/>
+        <attribute name="height" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="heightUnit" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isOnboarded" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isPremium" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="lastName" optional="YES" attributeType="String"/>
+        <attribute name="lastSyncDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notificationPreferences" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String: Bool]"/>
+        <attribute name="preferredAudioCategories" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
+        <attribute name="profileImageData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="timeZone" optional="YES" attributeType="String"/>
+        <attribute name="userPreferences" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String: Any]"/>
+        <attribute name="weight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="weightUnit" optional="YES" attributeType="String"/>
+        <relationship name="achievements" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Achievement" inverseName="userProfile" inverseEntity="Achievement"/>
+        <relationship name="audioSessions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="AudioSession" inverseName="userProfile" inverseEntity="AudioSession"/>
+        <relationship name="goals" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Goal" inverseName="userProfile" inverseEntity="Goal"/>
+        <relationship name="healthMetrics" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="HealthMetric" inverseName="userProfile" inverseEntity="HealthMetric"/>
+        <relationship name="moodEntries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MoodEntry" inverseName="userProfile" inverseEntity="MoodEntry"/>
+        <relationship name="recommendations" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Recommendation" inverseName="userProfile" inverseEntity="Recommendation"/>
+        <relationship name="sessionCompletions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SessionCompletion" inverseName="userProfile" inverseEntity="SessionCompletion"/>
+        <relationship name="streaks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Streak" inverseName="userProfile" inverseEntity="Streak"/>
+        <relationship name="subscription" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Subscription" inverseName="userProfile" inverseEntity="Subscription"/>
+    </entity>
+</model>
