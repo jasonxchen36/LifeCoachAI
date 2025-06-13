@@ -38,6 +38,13 @@ struct ContentView: View {
     @State private var animateBackground = false
     @State private var animateLogo = false
     
+    /// Helper to detect simulator (to skip onboarding automatically)
+    #if targetEnvironment(simulator)
+    private let isSimulator = true
+    #else
+    private let isSimulator = false
+    #endif
+    
     // MARK: - Initialization
     
     /// Initialize managers with Core Data context
@@ -52,6 +59,10 @@ struct ContentView: View {
         
         // Check onboarding status
         hasCompletedOnboarding = userProfileManager.hasCompletedOnboarding
+        
+        // In the simulator we always want to jump straight to the main UI so that
+        // developers can see the full dashboard without doing the onboarding flow.
+        if isSimulator { hasCompletedOnboarding = true }
         
         // Finish loading
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -728,43 +739,49 @@ struct WelcomeBackView: View {
 
 // MARK: - Placeholder Views
 
-/// Dashboard view (placeholder)
-struct DashboardView: View {
-    var body: some View {
-        Text("Dashboard View")
-            .font(.largeTitle)
-    }
-}
+// The real implementations of DashboardView, AudioLibraryView, GoalsView,
+// InsightsView and ProfileView live in their own files. The placeholders were
+// masking them and have been removed.
 
-/// Audio library view (placeholder)
+// NOTE:
+// Until those dedicated view files are actually added to the project the build
+// will fail, because the `TabView` above references them.  To keep the app
+// compiling we add lightweight placeholder stubs here.  They can be deleted
+// once the real views are implemented.
+
 struct AudioLibraryView: View {
     var body: some View {
         Text("Audio Library View")
             .font(.largeTitle)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("PrimaryBackground"))
     }
 }
 
-/// Goals view (placeholder)
 struct GoalsView: View {
     var body: some View {
         Text("Goals View")
             .font(.largeTitle)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("PrimaryBackground"))
     }
 }
 
-/// Insights view (placeholder)
 struct InsightsView: View {
     var body: some View {
         Text("Insights View")
             .font(.largeTitle)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("PrimaryBackground"))
     }
 }
 
-/// Profile view (placeholder)
 struct ProfileView: View {
     var body: some View {
         Text("Profile View")
             .font(.largeTitle)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color("PrimaryBackground"))
     }
 }
 
