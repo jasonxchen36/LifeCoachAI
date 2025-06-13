@@ -744,46 +744,8 @@ struct WelcomeBackView: View {
 // masking them and have been removed.
 
 // NOTE:
-// Until those dedicated view files are actually added to the project the build
-// will fail, because the `TabView` above references them.  To keep the app
-// compiling we add lightweight placeholder stubs here.  They can be deleted
-// once the real views are implemented.
-
-struct AudioLibraryView: View {
-    var body: some View {
-        Text("Audio Library View")
-            .font(.largeTitle)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color("PrimaryBackground"))
-    }
-}
-
-struct GoalsView: View {
-    var body: some View {
-        Text("Goals View")
-            .font(.largeTitle)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color("PrimaryBackground"))
-    }
-}
-
-struct InsightsView: View {
-    var body: some View {
-        Text("Insights View")
-            .font(.largeTitle)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color("PrimaryBackground"))
-    }
-}
-
-struct ProfileView: View {
-    var body: some View {
-        Text("Profile View")
-            .font(.largeTitle)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color("PrimaryBackground"))
-    }
-}
+// Make sure the dedicated view files are included in the target so the app
+// compiles successfully.
 
 // MARK: - Preview
 struct ContentView_Previews: PreviewProvider {
