@@ -2,7 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- App Information -->
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -18,43 +17,33 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	
-	<!-- App Appearance -->
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneConfigurationName</key>
-					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-				</dict>
-			</array>
-		</dict>
+		<dict/>
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	
-	<!-- User Interface -->
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 		<string>healthkit</string>
 	</array>
-	
-	<!-- Supported Orientations -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -66,53 +55,26 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	
-	<!-- App Transport Security -->
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<false/>
-	</dict>
-	
-	<!-- Privacy Descriptions -->
 	<key>NSHealthShareUsageDescription</key>
-	<string>LifeCoach AI uses your health data to provide personalized recommendations, track your progress, and help you achieve your wellness goals. This includes steps, heart rate, sleep, and mindfulness data.</string>
-	
+	<string>LifeCoach AI needs access to your health data to provide personalized coaching and insights based on your activity, sleep, and other health metrics.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>LifeCoach AI needs to write mindfulness and workout data to Health to track your meditation sessions and activities within the app.</string>
-	
-	<key>NSUserNotificationsUsageDescription</key>
-	<string>LifeCoach AI sends you personalized reminders, goal notifications, and motivational messages to help you stay on track with your wellness journey.</string>
-	
+	<string>LifeCoach AI needs permission to update your health data to track your progress toward your health and wellness goals.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>LifeCoach AI can access your camera to let you take a profile photo for your account.</string>
-	
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>LifeCoach AI can access your photo library to let you select a profile photo for your account.</string>
-	
+	<string>LifeCoach AI uses the camera to allow you to take profile pictures and scan QR codes for quick access to features.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>LifeCoach AI uses the microphone for voice notes and guided meditation feedback.</string>
-	
-	<!-- Background Modes -->
-	<key>UIBackgroundModes</key>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>LifeCoach AI needs access to your photo library to allow you to select profile pictures.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>LifeCoach AI sends notifications for reminders, insights, and goal updates to help you stay on track with your wellness journey.</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>fetch</string>
-		<string>processing</string>
-		<string>audio</string>
+		<string>com.lifecoach.ai.healthrefresh</string>
+		<string>com.lifecoach.ai.insightsgeneration</string>
+		<string>com.lifecoach.ai.goalsupdate</string>
 	</array>
-	
-	<!-- App Capabilities -->
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
-	
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	
-	<!-- Status Bar Appearance -->
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDefault</string>
-	
-	<!-- App Store Information -->
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.healthcare-fitness</string>
 </dict>

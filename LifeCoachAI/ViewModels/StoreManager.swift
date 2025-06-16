@@ -8,7 +8,6 @@
 import Foundation
 import StoreKit
 import SwiftUI
-import CoreData
 import Combine
 import os.log
 
@@ -60,9 +59,6 @@ class StoreManager: NSObject, ObservableObject {
     /// Logger for debugging
     private let logger = Logger(subsystem: "com.lifecoach.ai", category: "StoreManager")
     
-    /// Core Data context for persisting subscription data
-    private var viewContext: NSManagedObjectContext?
-    
     /// Product identifiers
     private let productIdentifiers = [
         "com.lifecoach.ai.premium.monthly",
@@ -101,11 +97,6 @@ class StoreManager: NSObject, ObservableObject {
         logger.info("Running in simulator - will use mock data")
         loadMockData()
         #endif
-    }
-    
-    /// Set the Core Data context
-    func setViewContext(_ context: NSManagedObjectContext) {
-        self.viewContext = context
         
         // Load user profile
         loadUserProfile()
@@ -116,67 +107,16 @@ class StoreManager: NSObject, ObservableObject {
     
     // MARK: - User Profile
     
-    /// Load user profile from Core Data
+    /// Load user profile from DataStore
     private func loadUserProfile() {
-        guard let context = viewContext else {
-            logger.error("Cannot load user profile: Core Data context not available")
-            return
-        }
-        
-        let fetchRequest: NSFetchRequest<UserProfile> = UserProfile.fetchRequest()
-        
-        do {
-            let profiles = try context.fetch(fetchRequest)
-            
-            if let profile = profiles.first {
-                userProfile = profile
-                isPremium = profile.isPremium
-                subscriptionTier = profile.isPremium ? .premium : .free
-                
-                // Load subscription if available
-                loadSubscription()
-                
-                logger.info("Loaded user profile with premium status: \(profile.isPremium)")
-            } else {
-                logger.warning("No user profile found")
-            }
-        } catch {
-            logger.error("Failed to fetch user profile: \(error.localizedDescription)")
-        }
-    }
-    
-    /// Load subscription from Core Data
-    private func loadSubscription() {
-        guard let context = viewContext, let userProfile = userProfile else {
-            logger.error("Cannot load subscription: Core Data context or user profile not available")
-            return
-        }
-        
-        // Get subscription from user profile
-        if let subscription = userProfile.subscription {
-            isPremium = subscription.isActive
-            subscriptionExpirationDate = subscription.expirationDate
-            
-            // Check if subscription has expired
-            if let expirationDate = subscription.expirationDate, expirationDate < Date() {
-                isPremium = false
-                subscriptionTier = .free
-                
-                // Update user profile
-                userProfile.isPremium = false
-                
-                // Save context
-                do {
-                    try context.save()
-                    logger.info("Updated user profile for expired subscription")
-                } catch {
-                    logger.error("Failed to update user profile: \(error.localizedDescription)")
-                }
-            } else {
-                subscriptionTier = .premium
-            }
-            
-            logger.info("Loaded subscription with expiration date: \(String(describing: subscription.expirationDate))")
+        userProfile = DataStore.shared.loadUserProfile()
+        if let profile = userProfile {
+            isPremium = profile.subscription?.isActive ?? false
+            subscriptionTier = isPremium ? .premium : .free
+            subscriptionExpirationDate = profile.subscription?.expirationDate
+            logger.info("Loaded user profile with premium status: \(isPremium)")
+        } else {
+            logger.warning("No user profile found")
         }
     }
     
@@ -295,7 +235,7 @@ class StoreManager: NSObject, ObservableObject {
     }
     
     /// Verify transaction
-    private func verifyTransaction(_ verification: VerificationResult<Transaction>) async {
+    private func verifyTransaction(_ verification: VerificationResult<StoreKit.Transaction>) async {
         // Check verification result
         switch verification {
         case .verified(let transaction):
@@ -325,9 +265,9 @@ class StoreManager: NSObject, ObservableObject {
     }
     
     /// Update subscription status with transaction
-    private func updateSubscriptionStatus(with transaction: Transaction) async {
-        guard let context = viewContext, let userProfile = userProfile else {
-            logger.error("Cannot update subscription status: Core Data context or user profile not available")
+    private func updateSubscriptionStatus(with transaction: StoreKit.Transaction) async {
+        guard let userProfile = userProfile else {
+            logger.error("Cannot update subscription status: user profile not available")
             return
         }
         
@@ -335,35 +275,22 @@ class StoreManager: NSObject, ObservableObject {
         let productId = transaction.productID
         let expirationDate = transaction.expirationDate
         
-        // Update subscription in Core Data
+        // Update subscription in DataStore
         await MainActor.run {
             // Check if user already has a subscription
             var subscription = userProfile.subscription
             
             if subscription == nil {
                 // Create new subscription
-                subscription = Subscription(context: context)
-                subscription?.id = UUID()
-                subscription?.userProfile = userProfile
+                subscription = Subscription(id: UUID())
+                userProfile.subscription = subscription
             }
             
             // Update subscription details
             subscription?.productId = productId
             subscription?.purchaseDate = transaction.purchaseDate
             subscription?.expirationDate = expirationDate
-            subscription?.originalPurchaseDate = transaction.originalPurchaseDate
             subscription?.isActive = true
-            subscription?.type = productId.contains("yearly") ? "yearly" : "monthly"
-            
-            // Store receipt data if available
-            if let appStoreReceiptURL = Bundle.main.appStoreReceiptURL,
-               let receiptData = try? Data(contentsOf: appStoreReceiptURL) {
-                subscription?.receiptData = receiptData
-            }
-            
-            // Update user profile
-            userProfile.isPremium = true
-            userProfile.subscription = subscription
             
             // Update published properties
             isPremium = true
@@ -371,13 +298,9 @@ class StoreManager: NSObject, ObservableObject {
             subscriptionExpirationDate = expirationDate
             subscriptionAutoRenews = transaction.autoRenewStatus == .willRenew
             
-            // Save context
-            do {
-                try context.save()
-                logger.info("Updated subscription status in Core Data")
-            } catch {
-                logger.error("Failed to save subscription to Core Data: \(error.localizedDescription)")
-            }
+            // Save user profile
+            DataStore.shared.saveUserProfile(userProfile)
+            logger.info("Updated subscription status in DataStore")
         }
     }
     
@@ -391,7 +314,7 @@ class StoreManager: NSObject, ObservableObject {
         // Start new listener task
         transactionListenerTask = Task.detached { [weak self] in
             // Listen for transactions
-            for await result in Transaction.updates {
+            for await result in StoreKit.Transaction.updates {
                 // Handle transaction update
                 if let self = self {
                     await self.handleTransactionUpdate(result)
@@ -403,7 +326,7 @@ class StoreManager: NSObject, ObservableObject {
     }
     
     /// Handle transaction update
-    private func handleTransactionUpdate(_ result: VerificationResult<Transaction>) async {
+    private func handleTransactionUpdate(_ result: VerificationResult<StoreKit.Transaction>) async {
         // Check verification result
         switch result {
         case .verified(let transaction):
@@ -437,16 +360,13 @@ class StoreManager: NSObject, ObservableObject {
     
     /// Update subscription as expired
     private func updateSubscriptionExpired() async {
-        guard let context = viewContext, let userProfile = userProfile else {
-            logger.error("Cannot update expired subscription: Core Data context or user profile not available")
+        guard let userProfile = userProfile else {
+            logger.error("Cannot update expired subscription: user profile not available")
             return
         }
         
-        // Update subscription in Core Data
+        // Update subscription in DataStore
         await MainActor.run {
-            // Update user profile
-            userProfile.isPremium = false
-            
             // Update subscription
             if let subscription = userProfile.subscription {
                 subscription.isActive = false
@@ -456,13 +376,9 @@ class StoreManager: NSObject, ObservableObject {
             isPremium = false
             subscriptionTier = .free
             
-            // Save context
-            do {
-                try context.save()
-                logger.info("Updated expired subscription in Core Data")
-            } catch {
-                logger.error("Failed to update expired subscription: \(error.localizedDescription)")
-            }
+            // Save user profile
+            DataStore.shared.saveUserProfile(userProfile)
+            logger.info("Updated expired subscription in DataStore")
         }
     }
     
@@ -488,7 +404,7 @@ class StoreManager: NSObject, ObservableObject {
                 try await AppStore.sync()
                 
                 // Get all transactions
-                let transactions = await Transaction.currentEntitlements
+                let transactions = await StoreKit.Transaction.currentEntitlements
                 
                 if transactions.isEmpty {
                     // No active subscriptions found
@@ -505,21 +421,18 @@ class StoreManager: NSObject, ObservableObject {
                 var hasValidSubscription = false
                 
                 for await result in transactions {
-                    switch result {
-                    case .verified(let transaction):
-                        // Check if transaction is for a subscription
-                        if transaction.productType == .autoRenewable {
-                            // Check if subscription is still valid
-                            if let expirationDate = transaction.expirationDate, expirationDate > Date() {
-                                // Update subscription status
-                                await updateSubscriptionStatus(with: transaction)
-                                hasValidSubscription = true
-                                
-                                logger.info("Restored valid subscription: \(transaction.id)")
-                            }
-                        }
+                    if case .verified(let transaction) = result,
+                       transaction.productType == .autoRenewable,
+                       let expirationDate = transaction.expirationDate,
+                       expirationDate > Date() {
                         
-                    case .unverified(_, let error):
+                        hasValidSubscription = true
+                        
+                        // Update subscription status
+                        await updateSubscriptionStatus(with: transaction)
+                        
+                        logger.info("Restored valid subscription: \(transaction.id)")
+                    } else if case .unverified(_, let error) = result {
                         logger.error("Transaction verification failed during restore: \(error.localizedDescription)")
                     }
                 }
@@ -546,6 +459,22 @@ class StoreManager: NSObject, ObservableObject {
     }
     
     // MARK: - Subscription Management
+    
+    /// Enum for premium features
+    enum PremiumFeature: String, CaseIterable {
+        case advancedInsights = "Advanced Insights"
+        case personalizedCoaching = "Personalized Coaching"
+        case unlimitedAudio = "Unlimited Audio Content"
+        case premiumGoals = "Premium Goal Tracking"
+        case adFree = "Ad-Free Experience"
+        
+        var isPremiumOnly: Bool {
+            switch self {
+            case .advancedInsights, .personalizedCoaching, .unlimitedAudio, .premiumGoals, .adFree:
+                return true
+            }
+        }
+    }
     
     /// Check if feature is available based on subscription tier
     func isFeatureAvailable(_ feature: PremiumFeature) -> Bool {
@@ -661,7 +590,7 @@ class StoreManager: NSObject, ObservableObject {
                 try await AppStore.sync()
                 
                 // Get current subscriptions
-                let transactions = await Transaction.currentEntitlements
+                let transactions = await StoreKit.Transaction.currentEntitlements
                 
                 // Check if we have any active subscriptions
                 var hasActiveSubscription = false
@@ -723,7 +652,7 @@ class StoreManager: NSObject, ObservableObject {
         
         // Update products
         DispatchQueue.main.async {
-            self.products = [mockMonthlyProduct, mockYearlyProduct] as [Any] as! [Product]
+            self.products = [mockMonthlyProduct, mockYearlyProduct]
             self.isLoading = false
             
             // In simulator, default to non-premium
@@ -738,96 +667,56 @@ class StoreManager: NSObject, ObservableObject {
     }
     
     /// Mock Product for simulator
-    private class MockProduct: Product {
-        let mockId: String
-        let mockDisplayName: String
-        let mockDescription: String
-        let mockPrice: Decimal
-        let mockDisplayPrice: String
-        let mockIsFamilyShareable: Bool
-        let mockSubscriptionPeriod: String
+    private class MockProduct: Identifiable {
+        let id: String
+        let displayName: String
+        let description: String
+        let price: Decimal
+        let displayPrice: String
+        let isFamilyShareable: Bool
+        let subscriptionInfo: MockSubscriptionInfo?
         
         init(id: String, displayName: String, description: String, price: Decimal, displayPrice: String, isFamilyShareable: Bool, subscriptionPeriod: String) {
-            self.mockId = id
-            self.mockDisplayName = displayName
-            self.mockDescription = description
-            self.mockPrice = price
-            self.mockDisplayPrice = displayPrice
-            self.mockIsFamilyShareable = isFamilyShareable
-            self.mockSubscriptionPeriod = subscriptionPeriod
-            
-            // Initialize with dummy values
-            super.init()
+            self.id = id
+            self.displayName = displayName
+            self.description = description
+            self.price = price
+            self.displayPrice = displayPrice
+            self.isFamilyShareable = isFamilyShareable
+            self.subscriptionInfo = MockSubscriptionInfo(subscriptionPeriod: subscriptionPeriod)
         }
         
-        override var id: String {
-            return mockId
-        }
-        
-        override var displayName: String {
-            return mockDisplayName
-        }
-        
-        override var description: String {
-            return mockDescription
-        }
-        
-        override var price: Decimal {
-            return mockPrice
-        }
-        
-        override var displayPrice: String {
-            return mockDisplayPrice
-        }
-        
-        override var isFamilyShareable: Bool {
-            return mockIsFamilyShareable
-        }
-        
-        override var subscription: Product.SubscriptionInfo? {
-            return MockSubscriptionInfo(subscriptionPeriod: mockSubscriptionPeriod)
-        }
-        
-        override func purchase(options: Set<Product.PurchaseOption> = []) async throws -> Product.PurchaseResult {
+        func purchase(options: Set<Product.PurchaseOption> = []) async throws -> Product.PurchaseResult {
             // Simulate purchase success
             return .success(MockVerificationResult())
         }
     }
     
     /// Mock SubscriptionInfo for simulator
-    private class MockSubscriptionInfo: Product.SubscriptionInfo {
-        let mockSubscriptionPeriod: String
+    private class MockSubscriptionInfo {
+        let subscriptionPeriod: MockSubscriptionPeriod
         
         init(subscriptionPeriod: String) {
-            self.mockSubscriptionPeriod = subscriptionPeriod
-            super.init()
-        }
-        
-        override var subscriptionPeriod: Product.SubscriptionPeriod {
-            return MockSubscriptionPeriod(mockSubscriptionPeriod)
+            self.subscriptionPeriod = MockSubscriptionPeriod(subscriptionPeriod)
         }
     }
     
     /// Mock SubscriptionPeriod for simulator
-    private class MockSubscriptionPeriod: Product.SubscriptionPeriod {
-        let mockUnit: String
+    private class MockSubscriptionPeriod {
+        let unit: String
+        let value: Int
         
         init(_ unit: String) {
-            self.mockUnit = unit
-            super.init()
-        }
-        
-        override var unit: Product.SubscriptionPeriod.Unit {
-            return mockUnit == "month" ? .month : .year
-        }
-        
-        override var value: Int {
-            return 1
+            self.unit = unit
+            self.value = 1
         }
     }
     
     /// Mock VerificationResult for simulator
-    private class MockVerificationResult: VerificationResult<Transaction> {
+    private class MockVerificationResult: VerificationResult<StoreKit.Transaction> {
+        // This is a simplified mock that doesn't actually verify anything
+        // It's just for testing UI flows in the simulator
+        
         override var jwsRepresentation: String {
             return "mock_jws_representation"
         }
@@ -836,7 +725,7 @@ class StoreManager: NSObject, ObservableObject {
 
 // MARK: - StoreKit Extensions
 
-extension Product.SubscriptionPeriod.Unit: Identifiable {
+@retroactive extension Product.SubscriptionPeriod.Unit: Identifiable {
     public var id: Int {
         switch self {
         case .day: return 0
@@ -858,7 +747,7 @@ extension Product.SubscriptionPeriod.Unit: Identifiable {
     }
 }
 
-extension Product.ProductType: Identifiable {
+@retroactive extension Product.ProductType: Identifiable {
     public var id: Int {
         switch self {
         case .consumable: return 0
@@ -876,6 +765,19 @@ extension Product.ProductType: Identifiable {
         case .autoRenewable: return "Auto-Renewable Subscription"
         case .nonRenewable: return "Non-Renewable Subscription"
         @unknown default: return "Unknown"
+        }
+    }
+}
+
+// MARK: - SubscriptionTier Extension
+
+extension SubscriptionTier {
+    func hasAccess(to feature: StoreManager.PremiumFeature) -> Bool {
+        switch self {
+        case .free:
+            return !feature.isPremiumOnly
+        case .premium:
+            return true
         }
     }
 }
