@@ -370,14 +370,12 @@ struct OnboardingView: View {
         let weightInKg = useMetricSystem ? weight : weight / 2.20462
         
         // Save user profile
-        userProfileManager.createProfile(
-            name: name,
+        userProfileManager.updateUserProfile(
+            firstName: name,
             birthDate: birthDate,
             gender: gender.rawValue,
             height: heightInCm,
-            weight: weightInKg,
-            goalCategories: selectedGoalCategories.map { $0.rawValue },
-            audioCategories: selectedAudioCategories.map { $0.rawValue }
+            weight: weightInKg
         )
         
         // Mark onboarding as complete
@@ -410,7 +408,7 @@ struct OnboardingView: View {
         case .meditation: return "brain.head.profile"
         case .sleep: return "bed.double.fill"
         case .focus: return "target"
-        case .stress: return "wind"
+        case .relaxation: return "wind"
         case .coaching: return "figure.stand.line.dotted.figure.stand"
         case .motivation: return "flame.fill"
         default: return "headphones"
@@ -423,7 +421,7 @@ struct OnboardingView: View {
         case .meditation: return .blue
         case .sleep: return .purple
         case .focus: return .green
-        case .stress: return .orange
+        case .relaxation: return .orange
         case .coaching: return .red
         case .motivation: return .yellow
         default: return Color("AccentColor")

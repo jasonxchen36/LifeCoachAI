@@ -786,45 +786,7 @@ struct AudioSessionDetailView: View {
 
 // MARK: - Supporting Types
 
-/// Audio categories
-enum AudioCategory: String, CaseIterable {
-    case all = "all"
-    case meditation = "meditation"
-    case sleep = "sleep"
-    case focus = "focus"
-    case stress = "stress"
-    case coaching = "coaching"
-    case motivation = "motivation"
-    
-    var displayName: String {
-        switch self {
-        case .all: return "All"
-        case .meditation: return "Meditation"
-        case .sleep: return "Sleep"
-        case .focus: return "Focus"
-        case .stress: return "Stress Relief"
-        case .coaching: return "Coaching"
-        case .motivation: return "Motivation"
-        }
-    }
-}
-
-/// Sort options
-enum SortOption: String, CaseIterable {
-    case newest = "newest"
-    case oldest = "oldest"
-    case duration = "duration"
-    case alphabetical = "alphabetical"
-    
-    var displayName: String {
-        switch self {
-        case .newest: return "Newest First"
-        case .oldest: return "Oldest First"
-        case .duration: return "Duration"
-        case .alphabetical: return "A-Z"
-        }
-    }
-}
+// Note: Audio-related enums are defined in DataModels.swift
 
 // MARK: - Preview
 struct AudioLibraryView_Previews: PreviewProvider {

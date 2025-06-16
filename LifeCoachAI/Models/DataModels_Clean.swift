@@ -17,22 +17,19 @@ enum Gender: String, CaseIterable, Codable {
     case female = "female"
     case other = "other"
     case preferNotToSay = "prefer_not_to_say"
-    case notSpecified = "not_specified"
-
+    
     var displayName: String {
         switch self {
         case .male: return "Male"
         case .female: return "Female"
         case .other: return "Other"
         case .preferNotToSay: return "Prefer not to say"
-        case .notSpecified: return "Not specified"
         }
     }
 }
 
 /// Goal category enumeration
 enum GoalCategory: String, CaseIterable, Codable {
-    case all = "all"
     case fitness = "fitness"
     case nutrition = "nutrition"
     case mindfulness = "mindfulness"
@@ -42,10 +39,9 @@ enum GoalCategory: String, CaseIterable, Codable {
     case habit = "habit"
     case health = "health"
     case other = "other"
-
+    
     var displayName: String {
         switch self {
-        case .all: return "All"
         case .fitness: return "Fitness"
         case .nutrition: return "Nutrition"
         case .mindfulness: return "Mindfulness"
@@ -57,10 +53,9 @@ enum GoalCategory: String, CaseIterable, Codable {
         case .other: return "Other"
         }
     }
-
+    
     var icon: String {
         switch self {
-        case .all: return "list.bullet"
         case .fitness: return "figure.run"
         case .nutrition: return "leaf.fill"
         case .mindfulness: return "brain.head.profile"
@@ -72,10 +67,9 @@ enum GoalCategory: String, CaseIterable, Codable {
         case .other: return "star.fill"
         }
     }
-
+    
     var color: Color {
         switch self {
-        case .all: return .gray
         case .fitness: return .blue
         case .nutrition: return .green
         case .mindfulness: return .purple
@@ -96,7 +90,7 @@ enum GoalFrequency: String, CaseIterable, Codable {
     case monthly = "monthly"
     case yearly = "yearly"
     case custom = "custom"
-
+    
     var displayName: String {
         switch self {
         case .daily: return "Daily"
@@ -115,7 +109,7 @@ enum GoalStatus: String, CaseIterable, Codable {
     case completed = "completed"
     case paused = "paused"
     case cancelled = "cancelled"
-
+    
     var displayName: String {
         switch self {
         case .notStarted: return "Not Started"
@@ -125,7 +119,7 @@ enum GoalStatus: String, CaseIterable, Codable {
         case .cancelled: return "Cancelled"
         }
     }
-
+    
     var color: Color {
         switch self {
         case .notStarted: return .gray
@@ -153,7 +147,7 @@ enum HealthMetricType: String, CaseIterable, Codable {
     case mood = "mood"
     case stress = "stress"
     case energy = "energy"
-
+    
     var displayName: String {
         switch self {
         case .weight: return "Weight"
@@ -172,7 +166,7 @@ enum HealthMetricType: String, CaseIterable, Codable {
         case .energy: return "Energy Level"
         }
     }
-
+    
     var unit: String {
         switch self {
         case .weight: return "kg"
@@ -191,7 +185,7 @@ enum HealthMetricType: String, CaseIterable, Codable {
         case .energy: return "/10"
         }
     }
-
+    
     var icon: String {
         switch self {
         case .weight: return "scalemass.fill"
@@ -214,7 +208,6 @@ enum HealthMetricType: String, CaseIterable, Codable {
 
 /// Audio session category enumeration
 enum AudioCategory: String, CaseIterable, Codable {
-    case all = "all"
     case meditation = "meditation"
     case sleep = "sleep"
     case focus = "focus"
@@ -224,10 +217,9 @@ enum AudioCategory: String, CaseIterable, Codable {
     case mindfulness = "mindfulness"
     case coaching = "coaching"
     case other = "other"
-
+    
     var displayName: String {
         switch self {
-        case .all: return "All"
         case .meditation: return "Meditation"
         case .sleep: return "Sleep"
         case .focus: return "Focus"
@@ -239,10 +231,9 @@ enum AudioCategory: String, CaseIterable, Codable {
         case .other: return "Other"
         }
     }
-
+    
     var icon: String {
         switch self {
-        case .all: return "list.bullet"
         case .meditation: return "brain.head.profile"
         case .sleep: return "bed.double.fill"
         case .focus: return "target"
@@ -266,7 +257,7 @@ enum RecommendationCategory: String, CaseIterable, Codable {
     case health = "health"
     case motivation = "motivation"
     case other = "other"
-
+    
     var displayName: String {
         switch self {
         case .exercise: return "Exercise"
@@ -279,7 +270,7 @@ enum RecommendationCategory: String, CaseIterable, Codable {
         case .other: return "Other"
         }
     }
-
+    
     var icon: String {
         switch self {
         case .exercise: return "figure.run"
@@ -302,7 +293,7 @@ enum AchievementCategory: String, CaseIterable, Codable {
     case consistency = "consistency"
     case improvement = "improvement"
     case special = "special"
-
+    
     var displayName: String {
         switch self {
         case .streak: return "Streak"
@@ -322,7 +313,7 @@ enum SubscriptionStatus: String, CaseIterable, Codable {
     case cancelled = "cancelled"
     case trial = "trial"
     case pending = "pending"
-
+    
     var displayName: String {
         switch self {
         case .active: return "Active"
@@ -332,7 +323,7 @@ enum SubscriptionStatus: String, CaseIterable, Codable {
         case .pending: return "Pending"
         }
     }
-
+    
     var color: Color {
         switch self {
         case .active: return .green
@@ -346,7 +337,6 @@ enum SubscriptionStatus: String, CaseIterable, Codable {
 
 /// Insight category enumeration
 enum InsightCategory: String, CaseIterable, Codable {
-    case all = "all"
     case trend = "trend"
     case correlation = "correlation"
     case achievement = "achievement"
@@ -356,7 +346,6 @@ enum InsightCategory: String, CaseIterable, Codable {
 
     var displayName: String {
         switch self {
-        case .all: return "All"
         case .trend: return "Trend Analysis"
         case .correlation: return "Correlation"
         case .achievement: return "Achievement"
@@ -368,7 +357,6 @@ enum InsightCategory: String, CaseIterable, Codable {
 
     var icon: String {
         switch self {
-        case .all: return "list.bullet"
         case .trend: return "chart.line.uptrend.xyaxis"
         case .correlation: return "link"
         case .achievement: return "trophy.fill"
@@ -398,73 +386,6 @@ enum CorrelationType: String, CaseIterable, Codable {
         case .positive: return .green
         case .negative: return .red
         case .neutral: return .gray
-        }
-    }
-}
-
-/// Trend direction enumeration
-enum TrendDirection: String, CaseIterable, Codable {
-    case up = "up"
-    case down = "down"
-    case stable = "stable"
-
-    var displayName: String {
-        switch self {
-        case .up: return "Increasing"
-        case .down: return "Decreasing"
-        case .stable: return "Stable"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .up: return "arrow.up"
-        case .down: return "arrow.down"
-        case .stable: return "minus"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .up: return .green
-        case .down: return .red
-        case .stable: return .gray
-        }
-    }
-}
-
-/// Timeframe option enumeration
-enum TimeframeOption: String, CaseIterable, Codable {
-    case day = "day"
-    case week = "week"
-    case month = "month"
-    case year = "year"
-
-    var displayName: String {
-        switch self {
-        case .day: return "Day"
-        case .week: return "Week"
-        case .month: return "Month"
-        case .year: return "Year"
-        }
-    }
-}
-
-/// Goal sort option enumeration
-enum GoalSortOption: String, CaseIterable, Codable {
-    case priority = "priority"
-    case dueDate = "dueDate"
-    case progress = "progress"
-    case alphabetical = "alphabetical"
-    case creationDate = "creationDate"
-
-    var displayName: String {
-        switch self {
-        case .priority: return "Priority"
-        case .dueDate: return "Due Date"
-        case .progress: return "Progress"
-        case .alphabetical: return "A-Z"
-        case .creationDate: return "Recently Created"
         }
     }
 }
@@ -572,26 +493,20 @@ struct AppSettings: Codable {
     var notifications: NotificationSettings = NotificationSettings()
 }
 
-/// Streak info model
-struct StreakInfo: Identifiable {
-    let id = UUID()
-    let goalId: UUID
-    let currentStreak: Int
-    let longestStreak: Int
-    let lastCompletedDate: Date?
-    let streakType: String // "daily", "weekly", etc.
-}
-
 /// Export data model
-struct ExportData {
+struct ExportData: Codable {
     let exportDate: Date
-    let userProfile: String
-    let goals: String
-    let healthMetrics: String
-    let moodEntries: String
-    let achievements: String
-    let audioSessions: String
-    let recommendations: String
+    let userProfile: [String: Any]
+    let goals: [[String: Any]]
+    let healthMetrics: [[String: Any]]
+    let moodEntries: [[String: Any]]
+    let achievements: [[String: Any]]
+    let audioSessions: [[String: Any]]
+    let recommendations: [[String: Any]]
+
+    enum CodingKeys: String, CodingKey {
+        case exportDate, userProfile, goals, healthMetrics, moodEntries, achievements, audioSessions, recommendations
+    }
 }
 
 /// Chart data point model
@@ -622,74 +537,3 @@ struct DashboardWidget: Identifiable {
     let isVisible: Bool
     let size: String // "small", "medium", "large"
 }
-
-
-
-
-
-/// Sort options for audio sessions
-enum SortOption: String, CaseIterable, Codable {
-    case newest = "newest"
-    case oldest = "oldest"
-    case duration = "duration"
-    case alphabetical = "alphabetical"
-
-    var displayName: String {
-        switch self {
-        case .newest: return "Newest First"
-        case .oldest: return "Oldest First"
-        case .duration: return "Duration"
-        case .alphabetical: return "A-Z"
-        }
-    }
-}
-
-/// Subscription tier
-enum SubscriptionTier: String, CaseIterable, Codable {
-    case free = "free"
-    case premium = "premium"
-
-    var displayName: String {
-        switch self {
-        case .free: return "Free"
-        case .premium: return "Premium"
-        }
-    }
-
-    var monthlyPrice: Double {
-        switch self {
-        case .free: return 0.0
-        case .premium: return 9.99
-        }
-    }
-
-    var yearlyPrice: Double {
-        switch self {
-        case .free: return 0.0
-        case .premium: return 99.99
-        }
-    }
-
-    var features: [String] {
-        switch self {
-        case .free:
-            return [
-                "Access to basic audio content",
-                "Goal tracking",
-                "Basic health insights"
-            ]
-        case .premium:
-            return [
-                "Unlimited access to all audio content",
-                "Advanced health insights and recommendations",
-                "Personalized coaching",
-                "Premium goal tracking features",
-                "Ad-free experience"
-            ]
-        }
-    }
-}
-
-
-
-

@@ -10,6 +10,7 @@ import HealthKit
 import UserNotifications
 import BackgroundTasks
 
+
 @main
 struct LifeCoachAIApp: App {
     // MARK: - Environment Objects

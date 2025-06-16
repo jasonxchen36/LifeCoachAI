@@ -2074,3 +2074,27 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         
         for window in doNotDisturbWindows {
             let startHour = window.start.hour ?? 0
+            let startMinute = window.start.minute ?? 0
+            let endHour = window.end.hour ?? 23
+            let endMinute = window.end.minute ?? 59
+
+            let currentTime = hour * 60 + minute
+            let startTime = startHour * 60 + startMinute
+            let endTime = endHour * 60 + endMinute
+
+            if startTime <= endTime {
+                // Same day window
+                if currentTime >= startTime && currentTime <= endTime {
+                    return true
+                }
+            } else {
+                // Overnight window (crosses midnight)
+                if currentTime >= startTime || currentTime <= endTime {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+}

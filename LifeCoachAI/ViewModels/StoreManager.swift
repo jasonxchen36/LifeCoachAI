@@ -713,11 +713,11 @@ class StoreManager: NSObject, ObservableObject {
     }
     
     /// Mock VerificationResult for simulator
-    private class MockVerificationResult: VerificationResult<StoreKit.Transaction> {
+    private struct MockVerificationResult {
         // This is a simplified mock that doesn't actually verify anything
         // It's just for testing UI flows in the simulator
-        
-        override var jwsRepresentation: String {
+
+        var jwsRepresentation: String {
             return "mock_jws_representation"
         }
     }
@@ -725,7 +725,7 @@ class StoreManager: NSObject, ObservableObject {
 
 // MARK: - StoreKit Extensions
 
-@retroactive extension Product.SubscriptionPeriod.Unit: Identifiable {
+extension Product.SubscriptionPeriod.Unit: @retroactive Identifiable {
     public var id: Int {
         switch self {
         case .day: return 0
@@ -747,7 +747,7 @@ class StoreManager: NSObject, ObservableObject {
     }
 }
 
-@retroactive extension Product.ProductType: Identifiable {
+extension Product.ProductType: @retroactive Identifiable {
     public var id: Int {
         switch self {
         case .consumable: return 0

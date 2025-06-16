@@ -915,60 +915,11 @@ struct ProfileView: View {
 
 // MARK: - Supporting Types
 
-/// Gender options
-enum Gender: String, CaseIterable {
-    case male = "male"
-    case female = "female"
-    case nonBinary = "nonBinary"
-    case notSpecified = "notSpecified"
-    
-    var displayName: String {
-        switch self {
-        case .male: return "Male"
-        case .female: return "Female"
-        case .nonBinary: return "Non-binary"
-        case .notSpecified: return "Prefer not to say"
-        }
-    }
-}
+// Note: Gender enum and related types are defined in DataModels.swift
 
 // MARK: - UserProfile Extensions
 
-extension UserProfile {
-    /// Get user initials from name
-    var initials: String {
-        guard let name = self.name, !name.isEmpty else { return "?" }
-        
-        let components = name.components(separatedBy: " ")
-        if components.count > 1, let first = components.first?.first, let last = components.last?.first {
-            return String(first) + String(last)
-        } else if let first = components.first?.first {
-            return String(first)
-        } else {
-            return "?"
-        }
-    }
-    
-    /// Get formatted age from birth date
-    var formattedAge: String {
-        guard let birthDate = self.birthDate else { return "Not set" }
-        
-        let calendar = Calendar.current
-        let ageComponents = calendar.dateComponents([.year], from: birthDate, to: Date())
-        if let age = ageComponents.year {
-            return "\(age) years"
-        } else {
-            return "Unknown"
-        }
-    }
-    
-    /// Get formatted gender
-    var formattedGender: String {
-        guard let gender = self.gender, !gender.isEmpty else { return "Not specified" }
-        
-        return Gender(rawValue: gender)?.displayName ?? "Not specified"
-    }
-}
+// Note: UserProfile extensions are defined in DataModels.swift
 
 // MARK: - Preview
 struct ProfileView_Previews: PreviewProvider {

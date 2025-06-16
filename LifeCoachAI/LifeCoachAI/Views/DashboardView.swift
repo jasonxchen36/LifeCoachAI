@@ -1264,19 +1264,7 @@ struct AudioPlayerView: View {
     }
 }
 
-/// Paywall view placeholder
-struct PaywallView: View {
-    @Binding var isPresented: Bool
-    @EnvironmentObject var storeManager: StoreManager
-    
-    var body: some View {
-        NavigationView {
-            Text("Paywall View")
-                .navigationBarTitle("Premium Features", displayMode: .inline)
-                .navigationBarItems(trailing: Button("Close") { isPresented = false })
-        }
-    }
-}
+// Note: PaywallView is defined in ContentView.swift
 
 // MARK: - Preview
 struct DashboardView_Previews: PreviewProvider {
