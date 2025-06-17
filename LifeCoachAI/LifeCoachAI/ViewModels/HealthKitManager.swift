@@ -1933,11 +1933,7 @@ class HealthKitManager: ObservableObject {
     /// Get health metrics for a specific category
     func getHealthMetrics(for category: GoalCategory) -> [HealthMetricViewModel] {
         switch category {
-<<<<<<< HEAD
         case .fitness:
-=======
-        case .physical:
->>>>>>> 510ee9d (more changes')
             return [
                 getHealthMetricViewModel(for: .steps),
                 getHealthMetricViewModel(for: .activeEnergy),
@@ -1961,6 +1957,9 @@ class HealthKitManager: ObservableObject {
                 getHealthMetricViewModel(for: .weight)
             ].compactMap { $0 }
             
+        case .habit:
+            // If needed, adjust for .habit (previously productivity)
+            return []
         default:
             return []
         }

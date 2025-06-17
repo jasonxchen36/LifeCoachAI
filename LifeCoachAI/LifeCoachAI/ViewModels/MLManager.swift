@@ -443,8 +443,8 @@ class MLManager: ObservableObject {
                     modelsToUpdate.append(contentsOf: GoalCategory.allCases.map { "\($0.rawValue)Recommender" })
                 } else {
                     // For free users, only update a subset
-                    modelsToUpdate.append("PhysicalRecommender")
-                    modelsToUpdate.append("MentalRecommender")
+                    modelsToUpdate.append("FitnessRecommender")
+                    modelsToUpdate.append("MindfulnessRecommender")
                 }
                 
                 // Download and install updates
@@ -890,7 +890,7 @@ class MLManager: ObservableObject {
             }
             
             // For physical goals, check if there's relevant health data
-            if goal.category == GoalCategory.physical.rawValue {
+            if goal.category == GoalCategory.fitness.rawValue {
                 // Check if goal is related to steps
                 if goal.title?.contains("Steps") ?? false || goal.title?.contains("Walking") ?? false {
                     // Find latest steps data
@@ -907,7 +907,7 @@ class MLManager: ObservableObject {
                             let recommendation = createRecommendation(
                                 title: "Complete your step goal",
                                 description: "You need \(Int(stepsNeeded)) more steps to reach your daily goal. A \(Int(stepsNeeded / 100)) minute walk should do it!",
-                                category: .physical,
+                                category: .fitness,
                                 priority: 2,
                                 confidence: 0.85,
                                 actionType: "steps"
@@ -1469,7 +1469,7 @@ class MLManager: ObservableObject {
             (
                 "Take a walk",
                 "You've only reached 5,432 steps today. A 10-minute walk would help you get closer to your goal of 10,000 steps.",
-                .physical,
+                .fitness,
                 2,
                 "activity"
             ),
@@ -1496,8 +1496,8 @@ class MLManager: ObservableObject {
             ),
             (
                 "Schedule deep work",
-                "Your productivity peaks between 9-11 AM. Schedule your most important tasks during this window.",
-                .productivity,
+                "Your habit peaks between 9-11 AM. Schedule your most important tasks during this window.",
+                .habit,
                 1,
                 "schedule"
             )

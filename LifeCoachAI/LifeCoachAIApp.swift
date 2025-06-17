@@ -6,12 +6,6 @@
 //
 
 import SwiftUI
-import LifeCoachAI.ViewModels.AudioManager
-import LifeCoachAI.ViewModels.HealthKitManager
-import LifeCoachAI.ViewModels.MLManager
-import LifeCoachAI.ViewModels.NotificationManager
-import LifeCoachAI.ViewModels.StoreManager
-import LifeCoachAI.ViewModels.UserProfileManager
 import HealthKit
 import UserNotifications
 import BackgroundTasks
