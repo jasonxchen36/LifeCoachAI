@@ -106,7 +106,8 @@ class HealthKitManager: ObservableObject {
         }
         
         // Define the types to read
-        let typesToRead = HealthMetricType.healthKitTypesToRead
+        let healthMetricTypesToRead = HealthMetricType.healthKitTypesToRead
+        let typesToRead = Set(healthMetricTypesToRead.compactMap { $0.healthKitType })
         
         // Define the types to share (write) if needed
         var typesToShare: Set<HKSampleType> = []
@@ -1893,9 +1894,11 @@ class HealthKitManager: ObservableObject {
             id: UUID(),
             type: type,
             value: value,
+            unit: type.unit,
             date: now,
-            previousValue: previousValue,
-            goalValue: goalValue
+            trend: nil, // TODO: Calculate trend based on historical data
+            weeklyAverage: nil, // TODO: Calculate weekly average
+            monthlyAverage: nil // TODO: Calculate monthly average
         )
     }
     
@@ -1920,7 +1923,7 @@ class HealthKitManager: ObservableObject {
     /// Get health metrics for a specific category
     func getHealthMetrics(for category: GoalCategory) -> [HealthMetricViewModel] {
         switch category {
-        case .physical:
+        case .fitness:
             return [
                 getHealthMetricViewModel(for: .steps),
                 getHealthMetricViewModel(for: .activeEnergy),
@@ -1977,14 +1980,8 @@ class HealthKitManager: ObservableObject {
             return availableDataTypes.contains(.restingHeartRate)
         case .bloodPressure:
             return availableDataTypes.contains(.bloodPressureSystolic)
-        case .oxygenSaturation:
-            return availableDataTypes.contains(.oxygenSaturation)
-        case .respiratoryRate:
-            return availableDataTypes.contains(.respiratoryRate)
-        case .bodyFat:
-            return availableDataTypes.contains(.bodyFatPercentage)
-        case .bmi:
-            return availableDataTypes.contains(.bodyMassIndex)
+        default:
+            return false
         }
     }
 }

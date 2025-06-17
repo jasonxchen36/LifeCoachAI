@@ -659,14 +659,17 @@ class UserProfileManager: ObservableObject {
         return GoalViewModel(
             id: id,
             title: title,
+            description: nil,
             category: GoalCategory(rawValue: goal.category ?? "Other") ?? .other,
-            progress: progress,
-            currentValue: goal.currentProgress,
             targetValue: goal.targetValue,
+            currentValue: goal.currentProgress,
             unit: goal.unit,
+            frequency: GoalFrequency(rawValue: goal.frequency ?? "daily") ?? .daily,
             dueDate: goal.dueDate,
             isCompleted: goal.isCompleted,
-            streak: streak
+            progress: progress,
+            createdDate: goal.creationDate ?? Date(),
+            lastUpdated: goal.lastUpdatedDate ?? Date()
         )
     }
     

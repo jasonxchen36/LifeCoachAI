@@ -569,7 +569,7 @@ class AudioManager: NSObject, ObservableObject {
             audioPlayer.seek(to: targetTime) { [weak self] finished in
                 if finished {
                     self?.currentTime = time
-                    self?.playbackProgress = self?.duration > 0 ? time / self!.duration : 0
+                    self?.playbackProgress = (self?.duration ?? 0) > 0 ? time / (self?.duration ?? 1) : 0
                     
                     // Update now playing info
                     self?.updateNowPlayingInfo()

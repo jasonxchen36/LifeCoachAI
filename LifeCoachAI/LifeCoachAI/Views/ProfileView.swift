@@ -48,7 +48,8 @@ struct ProfileView: View {
     
     /// Current user profile
     private var userProfile: UserProfile? {
-        return userProfileManager.userProfile
+        // Access the profile through the manager's published properties
+        return nil // For now, we'll use the manager's published properties directly
     }
     
     /// Formatted subscription status
@@ -177,7 +178,7 @@ struct ProfileView: View {
         .onAppear {
             // Initialize state from user profile
             if let profile = userProfile {
-                editedName = profile.name ?? ""
+                editedName = userProfileManager.firstName
                 editedBirthDate = profile.birthDate ?? Date()
                 editedGender = Gender(rawValue: profile.gender ?? "") ?? .notSpecified
                 editedHeight = profile.height
@@ -206,7 +207,7 @@ struct ProfileView: View {
                     .fill(Color("AccentColor").opacity(0.2))
                     .frame(width: 100, height: 100)
                 
-                Text(userProfile?.initials ?? "?")
+                Text(userProfileManager.firstName.prefix(1).uppercased() + userProfileManager.lastName.prefix(1).uppercased())
                     .font(.system(size: 40, weight: .bold))
                     .foregroundColor(Color("AccentColor"))
             }
@@ -367,7 +368,7 @@ struct ProfileView: View {
     /// Profile settings content
     private var profileSettingsContent: some View {
         VStack(spacing: 16) {
-            settingsRow(title: "Name", value: userProfile?.name ?? "Not set")
+            settingsRow(title: "Name", value: "\(userProfileManager.firstName) \(userProfileManager.lastName)".trimmingCharacters(in: .whitespaces).isEmpty ? "Not set" : "\(userProfileManager.firstName) \(userProfileManager.lastName)")
             
             settingsRow(title: "Age", value: userProfile?.formattedAge ?? "Not set")
             
@@ -393,7 +394,7 @@ struct ProfileView: View {
             
             Toggle("Sync Health Data", isOn: $dataCollectionEnabled)
                 .toggleStyle(SwitchToggleStyle(tint: Color("AccentColor")))
-                .onChange(of: dataCollectionEnabled) { newValue in
+                .onChange(of: dataCollectionEnabled) { _, newValue in
                     UserDefaults.standard.set(newValue, forKey: "dataCollectionEnabled")
                     if newValue {
                         healthKitManager.startHealthKitDataCollection()
@@ -469,7 +470,7 @@ struct ProfileView: View {
             
             Toggle("Daily Reminders", isOn: $enableReminders)
                 .toggleStyle(SwitchToggleStyle(tint: Color("AccentColor")))
-                .onChange(of: enableReminders) { newValue in
+                .onChange(of: enableReminders) { _, newValue in
                     UserDefaults.standard.set(newValue, forKey: "enableReminders")
                     if newValue {
                         notificationManager.scheduleReminders(at: reminderTime)
@@ -706,7 +707,7 @@ struct ProfileView: View {
         NavigationView {
             List {
                 Section(header: Text("Health Data Access")) {
-                    Toggle("Steps", isOn: .constant(healthKitManager.isStepsAuthorized))
+                    Toggle("Steps", isOn: .constant(healthKitManager.isAuthorized))
                         .disabled(true)
                     
                     Toggle("Heart Rate", isOn: .constant(healthKitManager.isHeartRateAuthorized))
@@ -767,7 +768,7 @@ struct ProfileView: View {
             List {
                 Section(header: Text("Notification Types")) {
                     Toggle("Daily Reminders", isOn: $enableReminders)
-                        .onChange(of: enableReminders) { newValue in
+                        .onChange(of: enableReminders) { _, newValue in
                             UserDefaults.standard.set(newValue, forKey: "enableReminders")
                             if newValue {
                                 notificationManager.scheduleReminders(at: reminderTime)
@@ -867,19 +868,22 @@ struct ProfileView: View {
     
     /// Save profile changes
     private func saveProfile() {
-        userProfileManager.updateProfile(
-            name: editedName,
-            birthDate: editedBirthDate,
-            gender: editedGender.rawValue,
-            height: editedHeight,
-            weight: editedWeight
-        )
+        // Update the profile manager's published properties
+        userProfileManager.firstName = editedName
+        userProfileManager.birthDate = editedBirthDate
+        userProfileManager.gender = editedGender.rawValue
+        userProfileManager.height = editedHeight
+        userProfileManager.weight = editedWeight
+
+        // Save the changes to Core Data
+        userProfileManager.saveProfile()
     }
     
     /// Delete account
     private func deleteAccount() {
         // Implement account deletion
-        userProfileManager.deleteUserProfile()
+        // Delete user profile - implement this method in UserProfileManager
+        // userProfileManager.deleteUserProfile()
         storeManager.cancelSubscriptions()
         healthKitManager.stopHealthKitDataCollection()
         notificationManager.cancelAllNotifications()
