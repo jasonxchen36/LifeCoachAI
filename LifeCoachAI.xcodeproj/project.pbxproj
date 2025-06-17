@@ -27,6 +27,7 @@
 		7A0D1A5C2B2A1DAC00E4F5F6 /* UserProfileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A5B2B2A1DAC00E4F5F6 /* UserProfileManager.swift */; };
 		7A0D1A5F2B2A1DC400E4F5F6 /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */; };
 		7A0D1A602B2A1DC500E4F5F6 /* ViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */; };
+		NEWSTUBBUILDFILE /* CoreDataStubEntities.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEWSTUBFILE /* CoreDataStubEntities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,14 +46,15 @@
 		7A0D1A4A2B2A1D3800E4F5F6 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/InsightsView.swift"; sourceTree = "<group>"; };
 		7A0D1A4C2B2A1D4300E4F5F6 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/ProfileView.swift"; sourceTree = "<group>"; };
 		7A0D1A4E2B2A1D5000E4F5F6 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/OnboardingView.swift"; sourceTree = "<group>"; };
-		7A0D1A512B2A1D7000E4F5F6 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
-		7A0D1A532B2A1D7C00E4F5F6 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
-		7A0D1A552B2A1D8700E4F5F6 /* MLManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLManager.swift; sourceTree = "<group>"; };
-		7A0D1A572B2A1D9300E4F5F6 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		7A0D1A592B2A1D9F00E4F5F6 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
-		7A0D1A5B2B2A1DAC00E4F5F6 /* UserProfileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManager.swift; sourceTree = "<group>"; };
-		7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModels.swift; sourceTree = "<group>"; };
-		7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModels.swift; sourceTree = "<group>"; };
+		7A0D1A512B2A1D7000E4F5F6 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/ViewModels/AudioManager.swift"; sourceTree = "<group>"; };
+		7A0D1A532B2A1D7C00E4F5F6 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/ViewModels/HealthKitManager.swift"; sourceTree = "<group>"; };
+		7A0D1A552B2A1D8700E4F5F6 /* MLManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/ViewModels/MLManager.swift"; sourceTree = "<group>"; };
+		7A0D1A572B2A1D9300E4F5F6 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/ViewModels/NotificationManager.swift"; sourceTree = "<group>"; };
+		7A0D1A592B2A1D9F00E4F5F6 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/ViewModels/StoreManager.swift"; sourceTree = "<group>"; };
+		7A0D1A5B2B2A1DAC00E4F5F6 /* UserProfileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/ViewModels/UserProfileManager.swift"; sourceTree = "<group>"; };
+		7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Models/DataModels.swift"; sourceTree = "<group>"; };
+		7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Models/ViewModels.swift"; sourceTree = "<group>"; };
+		NEWSTUBFILE /* CoreDataStubEntities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Models/CoreDataStubEntities.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +141,7 @@
 			children = (
 				7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */,
 				7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */,
+				NEWSTUBFILE /* CoreDataStubEntities.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -231,6 +234,7 @@
 				7A0D1A352B2A1C3F00E4F5F6 /* Persistence.swift in Sources */,
 				7A0D1A472B2A1D2000E4F5F6 /* AudioLibraryView.swift in Sources */,
 				7A0D1A452B2A1D1000E4F5F6 /* DashboardView.swift in Sources */,
+				NEWSTUBBUILDFILE /* CoreDataStubEntities.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
