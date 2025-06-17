@@ -203,6 +203,7 @@
 			files = (
 				7A0D1A332B2A1C3F00E4F5F6 /* PreviewAssets.xcassets in Resources */,
 				7A0D1A302B2A1C3F00E4F5F6 /* Assets.xcassets in Resources */,
+				7A0D1A382B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,7 +229,6 @@
 				7A0D1A4F2B2A1D5000E4F5F6 /* OnboardingView.swift in Sources */,
 				7A0D1A2C2B2A1C3D00E4F5F6 /* LifeCoachAIApp.swift in Sources */,
 				7A0D1A352B2A1C3F00E4F5F6 /* Persistence.swift in Sources */,
-				7A0D1A382B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld in Sources */,
 				7A0D1A472B2A1D2000E4F5F6 /* AudioLibraryView.swift in Sources */,
 				7A0D1A452B2A1D1000E4F5F6 /* DashboardView.swift in Sources */,
 			);
