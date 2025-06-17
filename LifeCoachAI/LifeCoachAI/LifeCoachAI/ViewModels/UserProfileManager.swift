@@ -659,8 +659,13 @@ class UserProfileManager: ObservableObject {
         return GoalViewModel(
             id: id,
             title: title,
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/UserProfileManager.swift
+            description: nil,
+            category: GoalCategory(rawValue: goal.category ?? "Other") ?? .other,
+=======
             description: goal.desc,
             category: GoalCategory(rawValue: goal.category ?? "other") ?? .other,
+>>>>>>> 510ee9d (more changes'):ViewModels/UserProfileManager.swift
             targetValue: goal.targetValue,
             currentValue: goal.currentProgress,
             unit: goal.unit,
@@ -669,7 +674,11 @@ class UserProfileManager: ObservableObject {
             isCompleted: goal.isCompleted,
             progress: progress,
             createdDate: goal.creationDate ?? Date(),
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/UserProfileManager.swift
+            lastUpdated: goal.lastUpdatedDate ?? Date()
+=======
             lastUpdated: goal.creationDate ?? Date()
+>>>>>>> 510ee9d (more changes'):ViewModels/UserProfileManager.swift
         )
     }
     

@@ -1,0 +1,470 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7A0D1A2C2B2A1C3D00E4F5F6 /* LifeCoachAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A2B2B2A1C3D00E4F5F6 /* LifeCoachAIApp.swift */; };
+		7A0D1A2E2B2A1C3D00E4F5F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A2D2B2A1C3D00E4F5F6 /* ContentView.swift */; };
+		7A0D1A302B2A1C3F00E4F5F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A0D1A2F2B2A1C3F00E4F5F6 /* Assets.xcassets */; };
+		7A0D1A332B2A1C3F00E4F5F6 /* PreviewAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A0D1A322B2A1C3F00E4F5F6 /* PreviewAssets.xcassets */; };
+		7A0D1A352B2A1C3F00E4F5F6 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A342B2A1C3F00E4F5F6 /* Persistence.swift */; };
+		7A0D1A382B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A362B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld */; };
+		7A0D1A452B2A1D1000E4F5F6 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A442B2A1D1000E4F5F6 /* DashboardView.swift */; };
+		7A0D1A472B2A1D2000E4F5F6 /* AudioLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A462B2A1D2000E4F5F6 /* AudioLibraryView.swift */; };
+		7A0D1A492B2A1D2B00E4F5F6 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A482B2A1D2B00E4F5F6 /* GoalsView.swift */; };
+		7A0D1A4B2B2A1D3800E4F5F6 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A4A2B2A1D3800E4F5F6 /* InsightsView.swift */; };
+		7A0D1A4D2B2A1D4300E4F5F6 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A4C2B2A1D4300E4F5F6 /* ProfileView.swift */; };
+		7A0D1A4F2B2A1D5000E4F5F6 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A4E2B2A1D5000E4F5F6 /* OnboardingView.swift */; };
+		7A0D1A522B2A1D7000E4F5F6 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A512B2A1D7000E4F5F6 /* AudioManager.swift */; };
+		7A0D1A542B2A1D7C00E4F5F6 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A532B2A1D7C00E4F5F6 /* HealthKitManager.swift */; };
+		7A0D1A562B2A1D8700E4F5F6 /* MLManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A552B2A1D8700E4F5F6 /* MLManager.swift */; };
+		7A0D1A582B2A1D9300E4F5F6 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A572B2A1D9300E4F5F6 /* NotificationManager.swift */; };
+		7A0D1A5A2B2A1D9F00E4F5F6 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A592B2A1D9F00E4F5F6 /* StoreManager.swift */; };
+		7A0D1A5C2B2A1DAC00E4F5F6 /* UserProfileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A5B2B2A1DAC00E4F5F6 /* UserProfileManager.swift */; };
+		7A0D1A5F2B2A1DC400E4F5F6 /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */; };
+		7A0D1A602B2A1DC500E4F5F6 /* ViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7A0D1A282B2A1C3D00E4F5F6 /* LifeCoachAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LifeCoachAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0D1A2B2B2A1C3D00E4F5F6 /* LifeCoachAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeCoachAIApp.swift; sourceTree = "<group>"; };
+		7A0D1A2D2B2A1C3D00E4F5F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/ContentView.swift"; sourceTree = "<group>"; };
+		7A0D1A2F2B2A1C3F00E4F5F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7A0D1A322B2A1C3F00E4F5F6 /* PreviewAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = PreviewAssets.xcassets; sourceTree = "<group>"; };
+		7A0D1A342B2A1C3F00E4F5F6 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Persistence.swift; sourceTree = "<group>"; };
+		7A0D1A372B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LifeCoachAI.xcdatamodel; sourceTree = "<group>"; };
+		7A0D1A3E2B2A1C5A00E4F5F6 /* LifeCoachAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LifeCoachAI.entitlements; sourceTree = "<group>"; };
+		7A0D1A3F2B2A1C6A00E4F5F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7A0D1A442B2A1D1000E4F5F6 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/DashboardView.swift"; sourceTree = "<group>"; };
+		7A0D1A462B2A1D2000E4F5F6 /* AudioLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/AudioLibraryView.swift"; sourceTree = "<group>"; };
+		7A0D1A482B2A1D2B00E4F5F6 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/GoalsView.swift"; sourceTree = "<group>"; };
+		7A0D1A4A2B2A1D3800E4F5F6 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/InsightsView.swift"; sourceTree = "<group>"; };
+		7A0D1A4C2B2A1D4300E4F5F6 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/ProfileView.swift"; sourceTree = "<group>"; };
+		7A0D1A4E2B2A1D5000E4F5F6 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LifeCoachAI/Views/OnboardingView.swift"; sourceTree = "<group>"; };
+		7A0D1A512B2A1D7000E4F5F6 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		7A0D1A532B2A1D7C00E4F5F6 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		7A0D1A552B2A1D8700E4F5F6 /* MLManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLManager.swift; sourceTree = "<group>"; };
+		7A0D1A572B2A1D9300E4F5F6 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		7A0D1A592B2A1D9F00E4F5F6 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		7A0D1A5B2B2A1DAC00E4F5F6 /* UserProfileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManager.swift; sourceTree = "<group>"; };
+		7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModels.swift; sourceTree = "<group>"; };
+		7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModels.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7A0D1A252B2A1C3D00E4F5F6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7A0D1A1F2B2A1C3D00E4F5F6 = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A2A2B2A1C3D00E4F5F6 /* LifeCoachAI */,
+				7A0D1A292B2A1C3D00E4F5F6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7A0D1A292B2A1C3D00E4F5F6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A282B2A1C3D00E4F5F6 /* LifeCoachAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7A0D1A2A2B2A1C3D00E4F5F6 /* LifeCoachAI */ = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A3F2B2A1C6A00E4F5F6 /* Info.plist */,
+				7A0D1A3E2B2A1C5A00E4F5F6 /* LifeCoachAI.entitlements */,
+				7A0D1A2B2B2A1C3D00E4F5F6 /* LifeCoachAIApp.swift */,
+				7A0D1A342B2A1C3F00E4F5F6 /* Persistence.swift */,
+				7A0D1A432B2A1CF500E4F5F6 /* Views */,
+				7A0D1A502B2A1D6000E4F5F6 /* ViewModels */,
+				7A0D1A5D2B2A1DB600E4F5F6 /* Models */,
+				7A0D1A2F2B2A1C3F00E4F5F6 /* Assets.xcassets */,
+				7A0D1A362B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld */,
+				7A0D1A312B2A1C3F00E4F5F6 /* PreviewContent */,
+			);
+			path = LifeCoachAI;
+			sourceTree = "<group>";
+		};
+		7A0D1A312B2A1C3F00E4F5F6 /* PreviewContent */ = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A322B2A1C3F00E4F5F6 /* PreviewAssets.xcassets */,
+			);
+			path = PreviewContent;
+			sourceTree = "<group>";
+		};
+		7A0D1A432B2A1CF500E4F5F6 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A2D2B2A1C3D00E4F5F6 /* ContentView.swift */,
+				7A0D1A442B2A1D1000E4F5F6 /* DashboardView.swift */,
+				7A0D1A462B2A1D2000E4F5F6 /* AudioLibraryView.swift */,
+				7A0D1A482B2A1D2B00E4F5F6 /* GoalsView.swift */,
+				7A0D1A4A2B2A1D3800E4F5F6 /* InsightsView.swift */,
+				7A0D1A4C2B2A1D4300E4F5F6 /* ProfileView.swift */,
+				7A0D1A4E2B2A1D5000E4F5F6 /* OnboardingView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		7A0D1A502B2A1D6000E4F5F6 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A512B2A1D7000E4F5F6 /* AudioManager.swift */,
+				7A0D1A532B2A1D7C00E4F5F6 /* HealthKitManager.swift */,
+				7A0D1A552B2A1D8700E4F5F6 /* MLManager.swift */,
+				7A0D1A572B2A1D9300E4F5F6 /* NotificationManager.swift */,
+				7A0D1A592B2A1D9F00E4F5F6 /* StoreManager.swift */,
+				7A0D1A5B2B2A1DAC00E4F5F6 /* UserProfileManager.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		7A0D1A5D2B2A1DB600E4F5F6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7A0D1A5E2B2A1DC400E4F5F6 /* DataModels.swift */,
+				7A0D1A612B2A1DC500E4F5F6 /* ViewModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7A0D1A272B2A1C3D00E4F5F6 /* LifeCoachAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A0D1A3B2B2A1C3F00E4F5F6 /* Build configuration list for PBXNativeTarget "LifeCoachAI" */;
+			buildPhases = (
+				7A0D1A242B2A1C3D00E4F5F6 /* Sources */,
+				7A0D1A252B2A1C3D00E4F5F6 /* Frameworks */,
+				7A0D1A262B2A1C3D00E4F5F6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LifeCoachAI;
+			productName = LifeCoachAI;
+			productReference = 7A0D1A282B2A1C3D00E4F5F6 /* LifeCoachAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7A0D1A202B2A1C3D00E4F5F6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1510;
+				LastUpgradeCheck = 1510;
+				TargetAttributes = {
+					7A0D1A272B2A1C3D00E4F5F6 = {
+						CreatedOnToolsVersion = 15.1;
+					};
+				};
+			};
+			buildConfigurationList = 7A0D1A232B2A1C3D00E4F5F6 /* Build configuration list for PBXProject "LifeCoachAI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7A0D1A1F2B2A1C3D00E4F5F6;
+			productRefGroup = 7A0D1A292B2A1C3D00E4F5F6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7A0D1A272B2A1C3D00E4F5F6 /* LifeCoachAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7A0D1A262B2A1C3D00E4F5F6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A0D1A332B2A1C3F00E4F5F6 /* PreviewAssets.xcassets in Resources */,
+				7A0D1A302B2A1C3F00E4F5F6 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7A0D1A242B2A1C3D00E4F5F6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A0D1A602B2A1DC500E4F5F6 /* ViewModels.swift in Sources */,
+				7A0D1A5A2B2A1D9F00E4F5F6 /* StoreManager.swift in Sources */,
+				7A0D1A4D2B2A1D4300E4F5F6 /* ProfileView.swift in Sources */,
+				7A0D1A582B2A1D9300E4F5F6 /* NotificationManager.swift in Sources */,
+				7A0D1A4B2B2A1D3800E4F5F6 /* InsightsView.swift in Sources */,
+				7A0D1A5F2B2A1DC400E4F5F6 /* DataModels.swift in Sources */,
+				7A0D1A2E2B2A1C3D00E4F5F6 /* ContentView.swift in Sources */,
+				7A0D1A492B2A1D2B00E4F5F6 /* GoalsView.swift in Sources */,
+				7A0D1A542B2A1D7C00E4F5F6 /* HealthKitManager.swift in Sources */,
+				7A0D1A5C2B2A1DAC00E4F5F6 /* UserProfileManager.swift in Sources */,
+				7A0D1A522B2A1D7000E4F5F6 /* AudioManager.swift in Sources */,
+				7A0D1A562B2A1D8700E4F5F6 /* MLManager.swift in Sources */,
+				7A0D1A4F2B2A1D5000E4F5F6 /* OnboardingView.swift in Sources */,
+				7A0D1A2C2B2A1C3D00E4F5F6 /* LifeCoachAIApp.swift in Sources */,
+				7A0D1A352B2A1C3F00E4F5F6 /* Persistence.swift in Sources */,
+				7A0D1A382B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld in Sources */,
+				7A0D1A472B2A1D2000E4F5F6 /* AudioLibraryView.swift in Sources */,
+				7A0D1A452B2A1D1000E4F5F6 /* DashboardView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7A0D1A392B2A1C3F00E4F5F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7A0D1A3A2B2A1C3F00E4F5F6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7A0D1A3C2B2A1C3F00E4F5F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LifeCoachAI/LifeCoachAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LifeCoachAI/PreviewContent\"";
+				DEVELOPMENT_TEAM = "K8D77Q2GXR";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LifeCoachAI/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "LifeCoachAI needs access to your health data to provide personalized coaching and insights.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "LifeCoachAI needs permission to update your health data for tracking progress.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lifecoach.ai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7A0D1A3D2B2A1C3F00E4F5F6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LifeCoachAI/LifeCoachAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LifeCoachAI/PreviewContent\"";
+				DEVELOPMENT_TEAM = "K8D77Q2GXR";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LifeCoachAI/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "LifeCoachAI needs access to your health data to provide personalized coaching and insights.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "LifeCoachAI needs permission to update your health data for tracking progress.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lifecoach.ai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7A0D1A232B2A1C3D00E4F5F6 /* Build configuration list for PBXProject "LifeCoachAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0D1A392B2A1C3F00E4F5F6 /* Debug */,
+				7A0D1A3A2B2A1C3F00E4F5F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7A0D1A3B2B2A1C3F00E4F5F6 /* Build configuration list for PBXNativeTarget "LifeCoachAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0D1A3C2B2A1C3F00E4F5F6 /* Debug */,
+				7A0D1A3D2B2A1C3F00E4F5F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		7A0D1A362B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				7A0D1A372B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodel */,
+			);
+			currentVersion = 7A0D1A372B2A1C3F00E4F5F6 /* LifeCoachAI.xcdatamodel */;
+			path = Models/LifeCoachAI.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 7A0D1A202B2A1C3D00E4F5F6 /* Project object */;
+}

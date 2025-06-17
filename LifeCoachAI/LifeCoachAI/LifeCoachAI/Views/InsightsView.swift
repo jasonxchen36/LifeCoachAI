@@ -6,15 +6,11 @@
 //
 
 import SwiftUI
-import CoreData
 import Charts
 import HealthKit
 
 struct InsightsView: View {
     // MARK: - Environment & State
-    
-    /// Core Data managed object context
-    @Environment(\.managedObjectContext) private var viewContext
     
     /// Access to environment objects
     @EnvironmentObject private var healthKitManager: HealthKitManager
@@ -23,12 +19,12 @@ struct InsightsView: View {
     @EnvironmentObject private var storeManager: StoreManager
     
     /// View state
-    @State private var selectedTimeframe: TimeframeOption = .week
-    @State private var selectedMetric: HealthMetricType = .steps
-    @State private var showingDetailInsight: Insight? = nil
+    @State private var selectedTimeframe: LifeCoachAI.TimeframeOption = .week
+    @State private var selectedMetric: LifeCoachAI.HealthMetricType = .steps
+    @State private var showingDetailInsight: LifeCoachAI.Insight? = nil
     @State private var isLoading = true
     @State private var showFilters = false
-    @State private var selectedInsightCategory: InsightCategory = .all
+    @State private var selectedInsightCategory: LifeCoachAI.InsightCategory = .all
     
     // MARK: - Computed Properties
     
@@ -51,7 +47,7 @@ struct InsightsView: View {
     }
     
     /// Weekly trend (up, down, or stable)
-    private var weeklyTrend: TrendDirection {
+    private var weeklyTrend: LifeCoachAI.TrendDirection {
         guard healthMetricsData.count > 7 else { return .stable }
         
         let recentData = Array(healthMetricsData.suffix(7))
@@ -74,8 +70,8 @@ struct InsightsView: View {
     }
     
     /// AI-generated insights
-    private var insights: [Insight] {
-        var allInsights = mlManager.getInsights()
+    private var insights: [LifeCoachAI.Insight] {
+        var allInsights = mlManager.insights // Assuming mlManager provides these
         
         // Filter by category if not "All"
         if selectedInsightCategory != .all {
@@ -86,12 +82,12 @@ struct InsightsView: View {
     }
     
     /// Correlation insights between metrics
-    private var correlationInsights: [CorrelationInsight] {
-        return mlManager.getCorrelationInsights()
+    private var correlationInsights: [LifeCoachAI.CorrelationInsight] {
+        return mlManager.correlations // Assuming mlManager provides these
     }
     
     /// Streak data for selected metric
-    private var streakData: StreakInfo {
+    private var streakData: LifeCoachAI.StreakInfo {
         return healthKitManager.getStreakInfo(for: selectedMetric)
     }
     
@@ -103,10 +99,10 @@ struct InsightsView: View {
     }
     
     /// Weekly summary data
-    private var weeklySummary: [HealthMetricSummary] {
-        var summaries: [HealthMetricSummary] = []
+    private var weeklySummary: [LifeCoachAI.HealthMetricSummary] {
+        var summaries: [LifeCoachAI.HealthMetricSummary] = []
         
-        for metricType in HealthMetricType.allCases {
+        for metricType in LifeCoachAI.HealthMetricType.allCases {
             let metrics = healthKitManager.getHealthMetrics(
                 for: metricType,
                 timeframe: "week"
@@ -117,7 +113,7 @@ struct InsightsView: View {
                 let average = total / Double(metrics.count)
                 let max = metrics.map { $0.value }.max() ?? 0
                 
-                summaries.append(HealthMetricSummary(
+                summaries.append(LifeCoachAI.HealthMetricSummary(
                     type: metricType,
                     total: total,
                     average: average,
@@ -140,7 +136,7 @@ struct InsightsView: View {
     }
     
     /// Format value based on metric type
-    private func formatValue(_ value: Double, for metricType: HealthMetricType) -> String {
+    private func formatValue(_ value: Double, for metricType: LifeCoachAI.HealthMetricType) -> String {
         switch metricType {
         case .steps:
             return "\(Int(value))"
@@ -164,9 +160,9 @@ struct InsightsView: View {
     }
     
     /// Get color for trend direction
-    private func colorForTrend(_ trend: TrendDirection, metricType: HealthMetricType) -> Color {
+    private func colorForTrend(_ trend: LifeCoachAI.TrendDirection, metricType: LifeCoachAI.HealthMetricType) -> Color {
         // For some metrics like resting heart rate, down is good
-        let invertedMetrics: [HealthMetricType] = [.heartRate]
+        let invertedMetrics: [LifeCoachAI.HealthMetricType] = [.heartRate]
         
         if invertedMetrics.contains(metricType) {
             switch trend {
@@ -190,7 +186,7 @@ struct InsightsView: View {
     }
     
     /// Get icon for metric type
-    private func iconForMetric(_ metricType: HealthMetricType) -> String {
+    private func iconForMetric(_ metricType: LifeCoachAI.HealthMetricType) -> String {
         switch metricType {
         case .steps:
             return "figure.walk"
@@ -275,7 +271,7 @@ struct InsightsView: View {
             // Metric selector
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(HealthMetricType.allCases, id: \.self) { metricType in
+                    ForEach(LifeCoachAI.HealthMetricType.allCases, id: \.self) { metricType in
                         Button(action: {
                             withAnimation {
                                 selectedMetric = metricType
@@ -309,7 +305,7 @@ struct InsightsView: View {
             
             // Timeframe selector
             HStack {
-                ForEach(TimeframeOption.allCases, id: \.self) { timeframe in
+                ForEach(LifeCoachAI.TimeframeOption.allCases, id: \.self) { timeframe in
                     Button(action: {
                         withAnimation {
                             selectedTimeframe = timeframe
@@ -535,7 +531,7 @@ struct InsightsView: View {
             if showFilters {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(InsightCategory.allCases, id: \.self) { category in
+                        ForEach(LifeCoachAI.InsightCategory.allCases, id: \.self) { category in
                             Button(action: {
                                 withAnimation {
                                     selectedInsightCategory = category
@@ -750,7 +746,7 @@ struct InsightsView: View {
     }
     
     /// Insight card component
-    private func insightCard(_ insight: Insight) -> some View {
+    private func insightCard(_ insight: LifeCoachAI.Insight) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: insight.category.icon)
@@ -807,7 +803,7 @@ struct InsightsView: View {
     }
     
     /// Weekly summary card component
-    private func weeklySummaryCard(_ summary: HealthMetricSummary) -> some View {
+    private func weeklySummaryCard(_ summary: LifeCoachAI.HealthMetricSummary) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: iconForMetric(summary.type))
@@ -869,7 +865,7 @@ struct InsightsView: View {
     }
     
     /// Correlation card component
-    private func correlationCard(_ correlation: CorrelationInsight) -> some View {
+    private func correlationCard(_ correlation: LifeCoachAI.CorrelationInsight) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "arrow.left.arrow.right.circle.fill")
@@ -970,7 +966,7 @@ struct InsightsView: View {
 // MARK: - Insight Detail View
 
 struct InsightDetailView: View {
-    let insight: Insight
+    let insight: LifeCoachAI.Insight
     @EnvironmentObject private var mlManager: MLManager
     @Environment(\.presentationMode) private var presentationMode
     
@@ -1124,7 +1120,7 @@ struct InsightDetailView: View {
     }
     
     /// Format value based on metric type
-    private func formatValue(_ value: Double, for metricType: HealthMetricType) -> String {
+    private func formatValue(_ value: Double, for metricType: LifeCoachAI.HealthMetricType) -> String {
         switch metricType {
         case .steps:
             return "\(Int(value))"
@@ -1148,7 +1144,7 @@ struct InsightDetailView: View {
     }
     
     /// Get icon for metric type
-    private func iconForMetric(_ metricType: HealthMetricType) -> String {
+    private func iconForMetric(_ metricType: LifeCoachAI.HealthMetricType) -> String {
         switch metricType {
         case .steps:
             return "figure.walk"
@@ -1170,19 +1166,10 @@ struct InsightDetailView: View {
     }
 }
 
-// MARK: - Supporting Types
-
-// Note: Insight-related enums and structs are defined in DataModels.swift
-
-// MARK: - Goal Extensions
-
-// Note: Goal extensions are defined in DataModels.swift
-
 // MARK: - Preview
 struct InsightsView_Previews: PreviewProvider {
     static var previews: some View {
         InsightsView()
-            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
             .environmentObject(HealthKitManager())
             .environmentObject(MLManager())
             .environmentObject(UserProfileManager())

@@ -7,6 +7,10 @@
 
 import SwiftUI
 import HealthKit
+<<<<<<< HEAD
+import Charts
+=======
+>>>>>>> 510ee9d (more changes')
 
 struct DashboardView: View {
     // MARK: - Environment Objects
@@ -21,11 +25,19 @@ struct DashboardView: View {
     
     @State private var selectedTab = 0
     @State private var showingRecommendationDetail = false
+<<<<<<< HEAD
+    @State private var selectedRecommendation: RecommendationViewModel?
+    @State private var showingGoalDetail = false
+    @State private var selectedGoal: GoalViewModel?
+    @State private var showingAudioSession = false
+    @State private var selectedAudioSession: AudioSessionViewModel?
+=======
     @State private var selectedRecommendation: Recommendation?
     @State private var showingGoalDetail = false
     @State private var selectedGoal: Goal?
     @State private var showingAudioSession = false
     @State private var selectedAudioSession: AudioSession?
+>>>>>>> 510ee9d (more changes')
     @State private var isRefreshing = false
     @State private var showingPaywall = false
     
@@ -181,7 +193,11 @@ struct DashboardView: View {
                     action: {
                         // Start quick meditation session
                         if let meditationSession = audioManager.getSessionsByCategory(.meditation).first {
+<<<<<<< HEAD
+                            selectedAudioSession = audioManager.getSessionViewModel(for: meditationSession)
+=======
                             selectedAudioSession = meditationSession
+>>>>>>> 510ee9d (more changes')
                             showingAudioSession = true
                         }
                     }
@@ -437,6 +453,20 @@ struct DashboardView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
                         ForEach(audioManager.recommendedSessions.prefix(5)) { session in
+<<<<<<< HEAD
+                            if let viewModel = audioManager.getSessionViewModel(for: session) {
+                                AudioSessionCard(session: viewModel)
+                                    .onTapGesture {
+                                        // Check if premium session
+                                        if viewModel.isPremium && !storeManager.isPremium {
+                                            showingPaywall = true
+                                        } else {
+                                            selectedAudioSession = viewModel
+                                            showingAudioSession = true
+                                        }
+                                    }
+                            }
+=======
                             AudioSessionCard(session: session)
                                 .onTapGesture {
                                     // Check if premium session
@@ -447,6 +477,7 @@ struct DashboardView: View {
                                         showingAudioSession = true
                                     }
                                 }
+>>>>>>> 510ee9d (more changes')
                         }
                     }
                 }
@@ -555,12 +586,30 @@ struct QuickActionButton: View {
 
 /// Recommendation card view
 struct RecommendationCard: View {
+<<<<<<< HEAD
+    let recommendation: RecommendationViewModel
+=======
     let recommendation: Recommendation
+>>>>>>> 510ee9d (more changes')
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 // Category icon
+<<<<<<< HEAD
+                Image(systemName: recommendation.category.icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(.white)
+                    .frame(width: 36, height: 36)
+                    .background(recommendation.category.color)
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(recommendation.title)
+                        .font(.headline)
+                    
+                    Text(recommendation.category.rawValue)
+=======
                 Image(systemName: getCategoryIcon(recommendation.category ?? ""))
                     .font(.system(size: 18))
                     .foregroundColor(.white)
@@ -573,6 +622,7 @@ struct RecommendationCard: View {
                         .font(.headline)
                     
                     Text(recommendation.category ?? "")
+>>>>>>> 510ee9d (more changes')
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -592,18 +642,28 @@ struct RecommendationCard: View {
                 }
             }
             
+<<<<<<< HEAD
+            Text(recommendation.description)
+=======
             Text(recommendation.content ?? "")
+>>>>>>> 510ee9d (more changes')
                 .font(.subheadline)
                 .lineLimit(2)
                 .foregroundColor(.secondary)
             
             HStack {
                 // Time
+<<<<<<< HEAD
+                Text(recommendation.formattedTime)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+=======
                 if let createdDate = recommendation.createdDate {
                     Text(formatDate(createdDate))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
+>>>>>>> 510ee9d (more changes')
                 
                 Spacer()
                 
@@ -627,6 +687,8 @@ struct RecommendationCard: View {
         .background(Color("SecondaryBackground"))
         .cornerRadius(12)
     }
+<<<<<<< HEAD
+=======
     
     // Helper function to format date
     private func formatDate(_ date: Date) -> String {
@@ -659,16 +721,31 @@ struct RecommendationCard: View {
         default: return Color("AccentColor")
         }
     }
+>>>>>>> 510ee9d (more changes')
 }
 
 /// Goal progress card view
 struct GoalProgressCard: View {
+<<<<<<< HEAD
+    let goal: GoalViewModel
+=======
     let goal: Goal
+>>>>>>> 510ee9d (more changes')
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 // Category icon
+<<<<<<< HEAD
+                Image(systemName: goal.category.icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(.white)
+                    .frame(width: 36, height: 36)
+                    .background(goal.category.color)
+                    .clipShape(Circle())
+                
+                Text(goal.title)
+=======
                 Image(systemName: getCategoryIcon(goal.category ?? "health"))
                     .font(.system(size: 18))
                     .foregroundColor(.white)
@@ -677,17 +754,27 @@ struct GoalProgressCard: View {
                     .clipShape(Circle())
                 
                 Text(goal.title ?? "")
+>>>>>>> 510ee9d (more changes')
                     .font(.headline)
                 
                 Spacer()
                 
+<<<<<<< HEAD
+                // Streak badge
+                if goal.streak > 0 {
+=======
                 // Streak badge (placeholder since Goal doesn't have streak)
                 if let streak = getGoalStreak(goal) {
+>>>>>>> 510ee9d (more changes')
                     HStack(spacing: 4) {
                         Image(systemName: "flame.fill")
                             .foregroundColor(.orange)
                         
+<<<<<<< HEAD
+                        Text("\(goal.streak)")
+=======
                         Text("\(streak)")
+>>>>>>> 510ee9d (more changes')
                             .font(.caption)
                             .fontWeight(.bold)
                     }
@@ -699,20 +786,33 @@ struct GoalProgressCard: View {
             }
             
             // Progress bar
+<<<<<<< HEAD
+            ProgressView(value: goal.progress)
+                .progressViewStyle(LinearProgressViewStyle(tint: goal.category.color))
+=======
             ProgressView(value: goal.progress, total: goal.targetValue)
                 .progressViewStyle(LinearProgressViewStyle(tint: getCategoryColor(goal.category ?? "health")))
+>>>>>>> 510ee9d (more changes')
                 .background(Color.gray.opacity(0.2).cornerRadius(10))
             
             HStack {
                 // Current value
+<<<<<<< HEAD
+                Text(goal.formattedValue)
+=======
                 Text(formatValue(goal.progress, unit: goal.unit))
+>>>>>>> 510ee9d (more changes')
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
                 // Target value
+<<<<<<< HEAD
+                Text("Goal: \(goal.formattedTarget)")
+=======
                 Text("Goal: \(formatValue(goal.targetValue, unit: goal.unit))")
+>>>>>>> 510ee9d (more changes')
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -727,7 +827,11 @@ struct GoalProgressCard: View {
                         .foregroundColor(.white)
                         .padding(.vertical, 6)
                         .frame(maxWidth: .infinity)
+<<<<<<< HEAD
+                        .background(goal.category.color)
+=======
                         .background(getCategoryColor(goal.category ?? "health"))
+>>>>>>> 510ee9d (more changes')
                         .cornerRadius(8)
                 }
             }
@@ -736,6 +840,8 @@ struct GoalProgressCard: View {
         .background(Color("SecondaryBackground"))
         .cornerRadius(12)
     }
+<<<<<<< HEAD
+=======
     
     // Helper function to get category icon
     private func getCategoryIcon(_ category: String) -> String {
@@ -790,6 +896,7 @@ struct GoalProgressCard: View {
         }
         return nil
     }
+>>>>>>> 510ee9d (more changes')
 }
 
 /// Health metric card view
@@ -860,6 +967,43 @@ struct WeeklyActivityChart: View {
     var body: some View {
         let sortedData = data.sorted { $0.key < $1.key }
         
+<<<<<<< HEAD
+        if #available(iOS 16.0, *) {
+            Chart {
+                ForEach(sortedData, id: \.key) { date, value in
+                    BarMark(
+                        x: .value("Day", formatDayOfWeek(date)),
+                        y: .value("Steps", value)
+                    )
+                    .foregroundStyle(Color.blue.gradient)
+                }
+            }
+            .chartYScale(domain: 0...(data.values.max() ?? 10000) * 1.1)
+            .chartXAxis {
+                AxisMarks { _ in
+                    AxisValueLabel()
+                }
+            }
+        } else {
+            // Fallback for iOS 15
+            HStack(alignment: .bottom, spacing: 8) {
+                ForEach(sortedData, id: \.key) { date, value in
+                    VStack {
+                        // Bar
+                        Rectangle()
+                            .fill(Color.blue)
+                            .frame(width: 30, height: getBarHeight(value))
+                        
+                        // Day label
+                        Text(formatDayOfWeek(date))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .frame(height: 150)
+        }
+=======
         // Always use the fallback for iOS 15
         HStack(alignment: .bottom, spacing: 8) {
             ForEach(sortedData, id: \.key) { date, value in
@@ -877,6 +1021,7 @@ struct WeeklyActivityChart: View {
             }
         }
         .frame(height: 150)
+>>>>>>> 510ee9d (more changes')
     }
     
     /// Format date to day of week
@@ -993,23 +1138,39 @@ struct CompletionRateCard: View {
 
 /// Audio session card view
 struct AudioSessionCard: View {
+<<<<<<< HEAD
+    let session: AudioSessionViewModel
+=======
     let session: AudioSession
+>>>>>>> 510ee9d (more changes')
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Category icon and duration
             HStack {
+<<<<<<< HEAD
+                Image(systemName: session.category.icon)
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 32, height: 32)
+                    .background(session.category.color)
+=======
                 Image(systemName: getCategoryIcon(session.category))
                     .font(.system(size: 16))
                     .foregroundColor(.white)
                     .frame(width: 32, height: 32)
                     .background(getCategoryColor(session.category))
+>>>>>>> 510ee9d (more changes')
                     .clipShape(Circle())
                 
                 Spacer()
                 
                 // Duration
+<<<<<<< HEAD
+                Text(session.formattedDuration)
+=======
                 Text(formatDuration(session.duration))
+>>>>>>> 510ee9d (more changes')
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 8)
@@ -1019,14 +1180,24 @@ struct AudioSessionCard: View {
             }
             
             // Title
+<<<<<<< HEAD
+            Text(session.title)
+=======
             Text(session.title ?? "")
+>>>>>>> 510ee9d (more changes')
                 .font(.headline)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
             
+<<<<<<< HEAD
+            // Subtitle if available
+            if let subtitle = session.subtitle {
+                Text(subtitle)
+=======
             // Description if available
             if let description = session.description {
                 Text(description)
+>>>>>>> 510ee9d (more changes')
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -1052,7 +1223,11 @@ struct AudioSessionCard: View {
                 // Play button
                 Image(systemName: "play.circle.fill")
                     .font(.system(size: 30))
+<<<<<<< HEAD
+                    .foregroundColor(session.category.color)
+=======
                     .foregroundColor(getCategoryColor(session.category))
+>>>>>>> 510ee9d (more changes')
             }
         }
         .padding()
@@ -1060,6 +1235,8 @@ struct AudioSessionCard: View {
         .background(Color("SecondaryBackground"))
         .cornerRadius(12)
     }
+<<<<<<< HEAD
+=======
     
     // Helper function to get category icon
     private func getCategoryIcon(_ category: String) -> String {
@@ -1098,6 +1275,7 @@ struct AudioSessionCard: View {
             return "\(seconds)s"
         }
     }
+>>>>>>> 510ee9d (more changes')
 }
 
 /// Empty state view
@@ -1131,7 +1309,11 @@ struct EmptyStateView: View {
 
 /// Recommendation detail view placeholder
 struct RecommendationDetailView: View {
+<<<<<<< HEAD
+    let recommendation: RecommendationViewModel
+=======
     let recommendation: Recommendation
+>>>>>>> 510ee9d (more changes')
     @EnvironmentObject var mlManager: MLManager
     @Environment(\.dismiss) private var dismiss
     
@@ -1141,6 +1323,21 @@ struct RecommendationDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     // Header with category icon
                     HStack {
+<<<<<<< HEAD
+                        Image(systemName: recommendation.category.icon)
+                            .font(.system(size: 24))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(recommendation.category.color)
+                            .clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(recommendation.title)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            Text(recommendation.category.rawValue)
+=======
                         Image(systemName: getCategoryIcon(recommendation.category ?? ""))
                             .font(.system(size: 24))
                             .foregroundColor(.white)
@@ -1154,6 +1351,7 @@ struct RecommendationDetailView: View {
                                 .fontWeight(.bold)
                             
                             Text(recommendation.category ?? "")
+>>>>>>> 510ee9d (more changes')
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -1168,10 +1366,30 @@ struct RecommendationDetailView: View {
                         }
                     }
                     
+<<<<<<< HEAD
+                    // Description
+                    Text(recommendation.description)
+                        .font(.body)
+                    
+                    // Confidence
+                    if let confidence = recommendation.confidenceText {
+                        HStack {
+                            Text("AI Confidence:")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Text(confidence)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                        }
+                    }
+                    
+=======
                     // Content
                     Text(recommendation.content ?? "")
                         .font(.body)
                     
+>>>>>>> 510ee9d (more changes')
                     // Action buttons
                     HStack(spacing: 15) {
                         Button(action: {
@@ -1207,6 +1425,8 @@ struct RecommendationDetailView: View {
             .navigationBarItems(trailing: Button("Close") { dismiss() })
         }
     }
+<<<<<<< HEAD
+=======
     
     // Helper function to get category icon
     private func getCategoryIcon(_ category: String) -> String {
@@ -1231,11 +1451,16 @@ struct RecommendationDetailView: View {
         default: return Color("AccentColor")
         }
     }
+>>>>>>> 510ee9d (more changes')
 }
 
 /// Goal detail view placeholder
 struct GoalDetailView: View {
+<<<<<<< HEAD
+    let goal: GoalViewModel
+=======
     let goal: Goal
+>>>>>>> 510ee9d (more changes')
     @EnvironmentObject var userProfileManager: UserProfileManager
     @EnvironmentObject var healthKitManager: HealthKitManager
     @Environment(\.dismiss) private var dismiss
@@ -1251,7 +1476,11 @@ struct GoalDetailView: View {
 
 /// Audio player view placeholder
 struct AudioPlayerView: View {
+<<<<<<< HEAD
+    let session: AudioSessionViewModel
+=======
     let session: AudioSession
+>>>>>>> 510ee9d (more changes')
     @EnvironmentObject var audioManager: AudioManager
     @Environment(\.dismiss) private var dismiss
     
@@ -1264,7 +1493,23 @@ struct AudioPlayerView: View {
     }
 }
 
+<<<<<<< HEAD
+/// Paywall view placeholder
+struct PaywallView: View {
+    @Binding var isPresented: Bool
+    @EnvironmentObject var storeManager: StoreManager
+    
+    var body: some View {
+        NavigationView {
+            Text("Paywall View")
+                .navigationBarTitle("Premium Features", displayMode: .inline)
+                .navigationBarItems(trailing: Button("Close") { isPresented = false })
+        }
+    }
+}
+=======
 // Note: PaywallView is defined in ContentView.swift
+>>>>>>> 510ee9d (more changes')
 
 // MARK: - Preview
 struct DashboardView_Previews: PreviewProvider {

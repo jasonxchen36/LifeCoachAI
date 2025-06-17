@@ -7,7 +7,6 @@
 
 import SwiftUI
 import HealthKit
-import Charts
 
 struct DashboardView: View {
     // MARK: - Environment Objects
@@ -22,11 +21,11 @@ struct DashboardView: View {
     
     @State private var selectedTab = 0
     @State private var showingRecommendationDetail = false
-    @State private var selectedRecommendation: RecommendationViewModel?
+    @State private var selectedRecommendation: Recommendation?
     @State private var showingGoalDetail = false
-    @State private var selectedGoal: GoalViewModel?
+    @State private var selectedGoal: Goal?
     @State private var showingAudioSession = false
-    @State private var selectedAudioSession: AudioSessionViewModel?
+    @State private var selectedAudioSession: AudioSession?
     @State private var isRefreshing = false
     @State private var showingPaywall = false
     
@@ -182,7 +181,7 @@ struct DashboardView: View {
                     action: {
                         // Start quick meditation session
                         if let meditationSession = audioManager.getSessionsByCategory(.meditation).first {
-                            selectedAudioSession = audioManager.getSessionViewModel(for: meditationSession)
+                            selectedAudioSession = meditationSession
                             showingAudioSession = true
                         }
                     }
@@ -438,18 +437,16 @@ struct DashboardView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
                         ForEach(audioManager.recommendedSessions.prefix(5)) { session in
-                            if let viewModel = audioManager.getSessionViewModel(for: session) {
-                                AudioSessionCard(session: viewModel)
-                                    .onTapGesture {
-                                        // Check if premium session
-                                        if viewModel.isPremium && !storeManager.isPremium {
-                                            showingPaywall = true
-                                        } else {
-                                            selectedAudioSession = viewModel
-                                            showingAudioSession = true
-                                        }
+                            AudioSessionCard(session: session)
+                                .onTapGesture {
+                                    // Check if premium session
+                                    if session.isPremium && !storeManager.isPremium {
+                                        showingPaywall = true
+                                    } else {
+                                        selectedAudioSession = session
+                                        showingAudioSession = true
                                     }
-                            }
+                                }
                         }
                     }
                 }
@@ -558,24 +555,24 @@ struct QuickActionButton: View {
 
 /// Recommendation card view
 struct RecommendationCard: View {
-    let recommendation: RecommendationViewModel
+    let recommendation: Recommendation
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 // Category icon
-                Image(systemName: recommendation.category.icon)
+                Image(systemName: getCategoryIcon(recommendation.category ?? ""))
                     .font(.system(size: 18))
                     .foregroundColor(.white)
                     .frame(width: 36, height: 36)
-                    .background(recommendation.category.color)
+                    .background(getCategoryColor(recommendation.category ?? ""))
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(recommendation.title)
+                    Text(recommendation.title ?? "")
                         .font(.headline)
                     
-                    Text(recommendation.category.rawValue)
+                    Text(recommendation.category ?? "")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -595,16 +592,18 @@ struct RecommendationCard: View {
                 }
             }
             
-            Text(recommendation.description)
+            Text(recommendation.content ?? "")
                 .font(.subheadline)
                 .lineLimit(2)
                 .foregroundColor(.secondary)
             
             HStack {
                 // Time
-                Text(recommendation.formattedTime)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let createdDate = recommendation.createdDate {
+                    Text(formatDate(createdDate))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
                 
                 Spacer()
                 
@@ -628,35 +627,67 @@ struct RecommendationCard: View {
         .background(Color("SecondaryBackground"))
         .cornerRadius(12)
     }
+    
+    // Helper function to format date
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    // Helper function to get category icon
+    private func getCategoryIcon(_ category: String) -> String {
+        switch category {
+        case "fitness": return "figure.walk"
+        case "health": return "heart"
+        case "nutrition": return "fork.knife"
+        case "mindfulness": return "brain.head.profile"
+        case "sleep": return "bed.double"
+        default: return "lightbulb"
+        }
+    }
+    
+    // Helper function to get category color
+    private func getCategoryColor(_ category: String) -> Color {
+        switch category {
+        case "fitness": return .orange
+        case "health": return .red
+        case "nutrition": return .green
+        case "mindfulness": return .blue
+        case "sleep": return .purple
+        default: return Color("AccentColor")
+        }
+    }
 }
 
 /// Goal progress card view
 struct GoalProgressCard: View {
-    let goal: GoalViewModel
+    let goal: Goal
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 // Category icon
-                Image(systemName: goal.category.icon)
+                Image(systemName: getCategoryIcon(goal.category ?? "health"))
                     .font(.system(size: 18))
                     .foregroundColor(.white)
                     .frame(width: 36, height: 36)
-                    .background(goal.category.color)
+                    .background(getCategoryColor(goal.category ?? "health"))
                     .clipShape(Circle())
                 
-                Text(goal.title)
+                Text(goal.title ?? "")
                     .font(.headline)
                 
                 Spacer()
                 
-                // Streak badge
-                if goal.streak > 0 {
+                // Streak badge (placeholder since Goal doesn't have streak)
+                if let streak = getGoalStreak(goal) {
                     HStack(spacing: 4) {
                         Image(systemName: "flame.fill")
                             .foregroundColor(.orange)
                         
-                        Text("\(goal.streak)")
+                        Text("\(streak)")
                             .font(.caption)
                             .fontWeight(.bold)
                     }
@@ -668,20 +699,20 @@ struct GoalProgressCard: View {
             }
             
             // Progress bar
-            ProgressView(value: goal.progress)
-                .progressViewStyle(LinearProgressViewStyle(tint: goal.category.color))
+            ProgressView(value: goal.progress, total: goal.targetValue)
+                .progressViewStyle(LinearProgressViewStyle(tint: getCategoryColor(goal.category ?? "health")))
                 .background(Color.gray.opacity(0.2).cornerRadius(10))
             
             HStack {
                 // Current value
-                Text(goal.formattedValue)
+                Text(formatValue(goal.progress, unit: goal.unit))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
                 // Target value
-                Text("Goal: \(goal.formattedTarget)")
+                Text("Goal: \(formatValue(goal.targetValue, unit: goal.unit))")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -696,7 +727,7 @@ struct GoalProgressCard: View {
                         .foregroundColor(.white)
                         .padding(.vertical, 6)
                         .frame(maxWidth: .infinity)
-                        .background(goal.category.color)
+                        .background(getCategoryColor(goal.category ?? "health"))
                         .cornerRadius(8)
                 }
             }
@@ -704,6 +735,60 @@ struct GoalProgressCard: View {
         .padding()
         .background(Color("SecondaryBackground"))
         .cornerRadius(12)
+    }
+    
+    // Helper function to get category icon
+    private func getCategoryIcon(_ category: String) -> String {
+        switch category {
+        case "fitness": return "figure.walk"
+        case "health": return "heart"
+        case "nutrition": return "fork.knife"
+        case "mindfulness": return "brain.head.profile"
+        case "sleep": return "bed.double"
+        case "work": return "briefcase"
+        case "learning": return "book"
+        case "personal": return "person"
+        default: return "target"
+        }
+    }
+    
+    // Helper function to get category color
+    private func getCategoryColor(_ category: String) -> Color {
+        switch category {
+        case "health": return .red
+        case "fitness": return .orange
+        case "nutrition": return .green
+        case "mindfulness": return .blue
+        case "sleep": return .purple
+        case "work": return .gray
+        case "learning": return .yellow
+        case "personal": return .pink
+        default: return Color("AccentColor")
+        }
+    }
+    
+    // Helper function to format value with unit
+    private func formatValue(_ value: Double, unit: String?) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 1
+        
+        let formattedValue = formatter.string(from: NSNumber(value: value)) ?? "0"
+        if let unit = unit, !unit.isEmpty {
+            return "\(formattedValue) \(unit)"
+        } else {
+            return formattedValue
+        }
+    }
+    
+    // Helper function to get goal streak (placeholder)
+    private func getGoalStreak(_ goal: Goal) -> Int? {
+        // In a real app, this would come from the goal or a related streak object
+        // For now, return a random value for demonstration
+        if goal.progress > 0 {
+            return Int.random(in: 1...5)
+        }
+        return nil
     }
 }
 
@@ -775,41 +860,23 @@ struct WeeklyActivityChart: View {
     var body: some View {
         let sortedData = data.sorted { $0.key < $1.key }
         
-        if #available(iOS 16.0, *) {
-            Chart {
-                ForEach(sortedData, id: \.key) { date, value in
-                    BarMark(
-                        x: .value("Day", formatDayOfWeek(date)),
-                        y: .value("Steps", value)
-                    )
-                    .foregroundStyle(Color.blue.gradient)
+        // Always use the fallback for iOS 15
+        HStack(alignment: .bottom, spacing: 8) {
+            ForEach(sortedData, id: \.key) { date, value in
+                VStack {
+                    // Bar
+                    Rectangle()
+                        .fill(Color.blue)
+                        .frame(width: 30, height: getBarHeight(value))
+                    
+                    // Day label
+                    Text(formatDayOfWeek(date))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
-            .chartYScale(domain: 0...(data.values.max() ?? 10000) * 1.1)
-            .chartXAxis {
-                AxisMarks { _ in
-                    AxisValueLabel()
-                }
-            }
-        } else {
-            // Fallback for iOS 15
-            HStack(alignment: .bottom, spacing: 8) {
-                ForEach(sortedData, id: \.key) { date, value in
-                    VStack {
-                        // Bar
-                        Rectangle()
-                            .fill(Color.blue)
-                            .frame(width: 30, height: getBarHeight(value))
-                        
-                        // Day label
-                        Text(formatDayOfWeek(date))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .frame(height: 150)
         }
+        .frame(height: 150)
     }
     
     /// Format date to day of week
@@ -926,23 +993,23 @@ struct CompletionRateCard: View {
 
 /// Audio session card view
 struct AudioSessionCard: View {
-    let session: AudioSessionViewModel
+    let session: AudioSession
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Category icon and duration
             HStack {
-                Image(systemName: session.category.icon)
+                Image(systemName: getCategoryIcon(session.category))
                     .font(.system(size: 16))
                     .foregroundColor(.white)
                     .frame(width: 32, height: 32)
-                    .background(session.category.color)
+                    .background(getCategoryColor(session.category))
                     .clipShape(Circle())
                 
                 Spacer()
                 
                 // Duration
-                Text(session.formattedDuration)
+                Text(formatDuration(session.duration))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 8)
@@ -952,14 +1019,14 @@ struct AudioSessionCard: View {
             }
             
             // Title
-            Text(session.title)
+            Text(session.title ?? "")
                 .font(.headline)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
             
-            // Subtitle if available
-            if let subtitle = session.subtitle {
-                Text(subtitle)
+            // Description if available
+            if let description = session.description {
+                Text(description)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
@@ -985,13 +1052,51 @@ struct AudioSessionCard: View {
                 // Play button
                 Image(systemName: "play.circle.fill")
                     .font(.system(size: 30))
-                    .foregroundColor(session.category.color)
+                    .foregroundColor(getCategoryColor(session.category))
             }
         }
         .padding()
         .frame(width: 160, height: 180)
         .background(Color("SecondaryBackground"))
         .cornerRadius(12)
+    }
+    
+    // Helper function to get category icon
+    private func getCategoryIcon(_ category: String) -> String {
+        switch category {
+        case "meditation": return "brain.head.profile"
+        case "sleep": return "bed.double"
+        case "focus": return "target"
+        case "stress": return "wind"
+        case "coaching": return "person.fill.checkmark"
+        case "motivation": return "flame.fill"
+        default: return "headphones"
+        }
+    }
+    
+    // Helper function to get category color
+    private func getCategoryColor(_ category: String) -> Color {
+        switch category {
+        case "meditation": return .blue
+        case "sleep": return .purple
+        case "focus": return .green
+        case "stress": return .orange
+        case "coaching": return .red
+        case "motivation": return .yellow
+        default: return Color("AccentColor")
+        }
+    }
+    
+    // Helper function to format duration
+    private func formatDuration(_ duration: Double) -> String {
+        let minutes = Int(duration / 60)
+        let seconds = Int(duration.truncatingRemainder(dividingBy: 60))
+        
+        if minutes > 0 {
+            return "\(minutes)m \(seconds)s"
+        } else {
+            return "\(seconds)s"
+        }
     }
 }
 
@@ -1026,7 +1131,7 @@ struct EmptyStateView: View {
 
 /// Recommendation detail view placeholder
 struct RecommendationDetailView: View {
-    let recommendation: RecommendationViewModel
+    let recommendation: Recommendation
     @EnvironmentObject var mlManager: MLManager
     @Environment(\.dismiss) private var dismiss
     
@@ -1036,19 +1141,19 @@ struct RecommendationDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     // Header with category icon
                     HStack {
-                        Image(systemName: recommendation.category.icon)
+                        Image(systemName: getCategoryIcon(recommendation.category ?? ""))
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
-                            .background(recommendation.category.color)
+                            .background(getCategoryColor(recommendation.category ?? ""))
                             .clipShape(Circle())
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(recommendation.title)
+                            Text(recommendation.title ?? "")
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
-                            Text(recommendation.category.rawValue)
+                            Text(recommendation.category ?? "")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -1063,22 +1168,9 @@ struct RecommendationDetailView: View {
                         }
                     }
                     
-                    // Description
-                    Text(recommendation.description)
+                    // Content
+                    Text(recommendation.content ?? "")
                         .font(.body)
-                    
-                    // Confidence
-                    if let confidence = recommendation.confidenceText {
-                        HStack {
-                            Text("AI Confidence:")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            Text(confidence)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                        }
-                    }
                     
                     // Action buttons
                     HStack(spacing: 15) {
@@ -1115,11 +1207,35 @@ struct RecommendationDetailView: View {
             .navigationBarItems(trailing: Button("Close") { dismiss() })
         }
     }
+    
+    // Helper function to get category icon
+    private func getCategoryIcon(_ category: String) -> String {
+        switch category {
+        case "fitness": return "figure.walk"
+        case "health": return "heart"
+        case "nutrition": return "fork.knife"
+        case "mindfulness": return "brain.head.profile"
+        case "sleep": return "bed.double"
+        default: return "lightbulb"
+        }
+    }
+    
+    // Helper function to get category color
+    private func getCategoryColor(_ category: String) -> Color {
+        switch category {
+        case "fitness": return .orange
+        case "health": return .red
+        case "nutrition": return .green
+        case "mindfulness": return .blue
+        case "sleep": return .purple
+        default: return Color("AccentColor")
+        }
+    }
 }
 
 /// Goal detail view placeholder
 struct GoalDetailView: View {
-    let goal: GoalViewModel
+    let goal: Goal
     @EnvironmentObject var userProfileManager: UserProfileManager
     @EnvironmentObject var healthKitManager: HealthKitManager
     @Environment(\.dismiss) private var dismiss
@@ -1135,7 +1251,7 @@ struct GoalDetailView: View {
 
 /// Audio player view placeholder
 struct AudioPlayerView: View {
-    let session: AudioSessionViewModel
+    let session: AudioSession
     @EnvironmentObject var audioManager: AudioManager
     @Environment(\.dismiss) private var dismiss
     
@@ -1148,19 +1264,7 @@ struct AudioPlayerView: View {
     }
 }
 
-/// Paywall view placeholder
-struct PaywallView: View {
-    @Binding var isPresented: Bool
-    @EnvironmentObject var storeManager: StoreManager
-    
-    var body: some View {
-        NavigationView {
-            Text("Paywall View")
-                .navigationBarTitle("Premium Features", displayMode: .inline)
-                .navigationBarItems(trailing: Button("Close") { isPresented = false })
-        }
-    }
-}
+// Note: PaywallView is defined in ContentView.swift
 
 // MARK: - Preview
 struct DashboardView_Previews: PreviewProvider {

@@ -6,24 +6,20 @@
 //
 
 import SwiftUI
-import CoreData
 import AVFoundation
 
 struct AudioLibraryView: View {
     // MARK: - Environment & State
-    
-    /// Core Data managed object context
-    @Environment(\.managedObjectContext) private var viewContext
     
     /// Audio manager for playback control
     @EnvironmentObject private var audioManager: AudioManager
     @EnvironmentObject private var storeManager: StoreManager
     
     /// View state
-    @State private var selectedCategory: AudioCategory = .all
+    @State private var selectedCategory: LifeCoachAI.AudioCategory = .all
     @State private var searchText = ""
     @State private var showFilters = false
-    @State private var sortOption: SortOption = .newest
+    @State private var sortOption: LifeCoachAI.SortOption = .newest
     @State private var showingSessionDetail: AudioSession? = nil
     
     // MARK: - Computed Properties
@@ -138,7 +134,7 @@ struct AudioLibraryView: View {
                         .foregroundColor(Color("SecondaryText"))
                     
                     Picker("Sort", selection: $sortOption) {
-                        ForEach(SortOption.allCases, id: \.self) { option in
+                        ForEach(LifeCoachAI.SortOption.allCases, id: \.self) { option in
                             Text(option.displayName).tag(option)
                         }
                     }
@@ -202,7 +198,7 @@ struct AudioLibraryView: View {
     private var categoryFilter: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                ForEach(AudioCategory.allCases, id: \.self) { category in
+                ForEach(LifeCoachAI.AudioCategory.allCases, id: \.self) { category in
                     Button(action: {
                         withAnimation {
                             selectedCategory = category
@@ -618,27 +614,6 @@ struct AudioSessionDetailView: View {
                 }
                 .padding(.horizontal)
                 
-                // Benefits
-                if let benefits = session.benefits, !benefits.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Benefits")
-                            .font(.headline)
-                            .foregroundColor(Color("PrimaryText"))
-                        
-                        ForEach(benefits, id: \.self) { benefit in
-                            HStack(alignment: .top, spacing: 12) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(Color("AccentColor"))
-                                
-                                Text(benefit)
-                                    .font(.body)
-                                    .foregroundColor(Color("SecondaryText"))
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                
                 // Related sessions
                 if !relatedSessions.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
@@ -784,15 +759,10 @@ struct AudioSessionDetailView: View {
     }
 }
 
-// MARK: - Supporting Types
-
-// Note: Audio-related enums are defined in DataModels.swift
-
 // MARK: - Preview
 struct AudioLibraryView_Previews: PreviewProvider {
     static var previews: some View {
         AudioLibraryView()
-            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
             .environmentObject(AudioManager())
             .environmentObject(StoreManager())
     }

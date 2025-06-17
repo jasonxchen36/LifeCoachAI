@@ -109,17 +109,25 @@ class StoreManager: NSObject, ObservableObject {
     
     /// Load user profile from DataStore
     private func loadUserProfile() {
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+        userProfile = DataStore.shared.loadUserProfile()
+=======
         // Create a new user profile for store management
         let newProfile = UserProfile(context: PersistenceController.shared.container.viewContext)
         newProfile.id = UUID()
         newProfile.creationDate = Date()
         newProfile.isPremium = false
         userProfile = newProfile
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
         if let profile = userProfile {
             isPremium = profile.subscription?.isActive ?? false
             subscriptionTier = isPremium ? .premium : .free
             subscriptionExpirationDate = profile.subscription?.expirationDate
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+            logger.info("Loaded user profile with premium status: \(isPremium)")
+=======
             logger.info("Loaded user profile with premium status: \(self.isPremium)")
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
         } else {
             logger.warning("No user profile found")
         }
@@ -287,8 +295,12 @@ class StoreManager: NSObject, ObservableObject {
             
             if subscription == nil {
                 // Create new subscription
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+                subscription = Subscription(id: UUID())
+=======
                 subscription = Subscription(context: PersistenceController.shared.container.viewContext)
                 subscription?.id = UUID()
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
                 userProfile.subscription = subscription
             }
             
@@ -305,8 +317,12 @@ class StoreManager: NSObject, ObservableObject {
             subscriptionAutoRenews = true // TODO: Implement auto-renew status check
             
             // Save user profile
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+            DataStore.shared.saveUserProfile(userProfile)
+=======
             // Save to Core Data context
             try? PersistenceController.shared.container.viewContext.save()
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
             logger.info("Updated subscription status in DataStore")
         }
     }
@@ -384,9 +400,13 @@ class StoreManager: NSObject, ObservableObject {
             subscriptionTier = .free
             
             // Save user profile
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+            DataStore.shared.saveUserProfile(userProfile)
+=======
             let profileManager = UserProfileManager()
             // Save to Core Data context
             try? PersistenceController.shared.container.viewContext.save()
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
             logger.info("Updated expired subscription in DataStore")
         }
     }
@@ -667,7 +687,11 @@ class StoreManager: NSObject, ObservableObject {
         
         // Update products
         DispatchQueue.main.async {
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+            self.products = [mockMonthlyProduct, mockYearlyProduct]
+=======
             self.products = [] // Mock products don't conform to Product protocol
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
             self.isLoading = false
             
             // In simulator, default to non-premium
@@ -702,8 +726,13 @@ class StoreManager: NSObject, ObservableObject {
         }
         
         func purchase(options: Set<Product.PurchaseOption> = []) async throws -> Product.PurchaseResult {
+<<<<<<< HEAD:LifeCoachAI/LifeCoachAI/ViewModels/StoreManager.swift
+            // Simulate purchase success
+            return .success(MockVerificationResult())
+=======
             // Simulate purchase success - this is just a mock for testing
             throw NSError(domain: "MockStoreError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Mock purchase not implemented"])
+>>>>>>> 510ee9d (more changes'):ViewModels/StoreManager.swift
         }
     }
     
@@ -778,6 +807,19 @@ extension Product.ProductType: @retroactive Identifiable {
         case .autoRenewable: return "Auto-Renewable Subscription"
         case .nonRenewable: return "Non-Renewable Subscription"
         default: return "Unknown"
+        }
+    }
+}
+
+// MARK: - SubscriptionTier Extension
+
+extension SubscriptionTier {
+    func hasAccess(to feature: StoreManager.PremiumFeature) -> Bool {
+        switch self {
+        case .free:
+            return !feature.isPremiumOnly
+        case .premium:
+            return true
         }
     }
 }

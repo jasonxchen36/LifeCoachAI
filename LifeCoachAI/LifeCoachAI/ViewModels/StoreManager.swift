@@ -109,12 +109,25 @@ class StoreManager: NSObject, ObservableObject {
     
     /// Load user profile from DataStore
     private func loadUserProfile() {
+<<<<<<< HEAD
+        // Create a new user profile for store management
+        let newProfile = UserProfile(context: PersistenceController.shared.container.viewContext)
+        newProfile.id = UUID()
+        newProfile.creationDate = Date()
+        newProfile.isPremium = false
+        userProfile = newProfile
+=======
         userProfile = DataStore.shared.loadUserProfile()
+>>>>>>> 510ee9d (more changes')
         if let profile = userProfile {
             isPremium = profile.subscription?.isActive ?? false
             subscriptionTier = isPremium ? .premium : .free
             subscriptionExpirationDate = profile.subscription?.expirationDate
+<<<<<<< HEAD
+            logger.info("Loaded user profile with premium status: \(self.isPremium)")
+=======
             logger.info("Loaded user profile with premium status: \(isPremium)")
+>>>>>>> 510ee9d (more changes')
         } else {
             logger.warning("No user profile found")
         }
@@ -282,7 +295,12 @@ class StoreManager: NSObject, ObservableObject {
             
             if subscription == nil {
                 // Create new subscription
+<<<<<<< HEAD
+                subscription = Subscription(context: PersistenceController.shared.container.viewContext)
+                subscription?.id = UUID()
+=======
                 subscription = Subscription(id: UUID())
+>>>>>>> 510ee9d (more changes')
                 userProfile.subscription = subscription
             }
             
@@ -296,10 +314,18 @@ class StoreManager: NSObject, ObservableObject {
             isPremium = true
             subscriptionTier = .premium
             subscriptionExpirationDate = expirationDate
+<<<<<<< HEAD
+            subscriptionAutoRenews = true // TODO: Implement auto-renew status check
+            
+            // Save user profile
+            // Save to Core Data context
+            try? PersistenceController.shared.container.viewContext.save()
+=======
             subscriptionAutoRenews = transaction.autoRenewStatus == .willRenew
             
             // Save user profile
             DataStore.shared.saveUserProfile(userProfile)
+>>>>>>> 510ee9d (more changes')
             logger.info("Updated subscription status in DataStore")
         }
     }
@@ -377,7 +403,13 @@ class StoreManager: NSObject, ObservableObject {
             subscriptionTier = .free
             
             // Save user profile
+<<<<<<< HEAD
+            let profileManager = UserProfileManager()
+            // Save to Core Data context
+            try? PersistenceController.shared.container.viewContext.save()
+=======
             DataStore.shared.saveUserProfile(userProfile)
+>>>>>>> 510ee9d (more changes')
             logger.info("Updated expired subscription in DataStore")
         }
     }
@@ -406,6 +438,23 @@ class StoreManager: NSObject, ObservableObject {
                 // Get all transactions
                 let transactions = await StoreKit.Transaction.currentEntitlements
                 
+<<<<<<< HEAD
+                var hasTransactions = false
+                for await _ in transactions {
+                    hasTransactions = true
+                    break
+                }
+
+                await MainActor.run {
+                    if !hasTransactions {
+                        // No active subscriptions found
+                        isRestoring = false
+                        errorMessage = "No active subscriptions found"
+
+                        logger.info("No active subscriptions found during restore")
+                        return
+                    }
+=======
                 if transactions.isEmpty {
                     // No active subscriptions found
                     await MainActor.run {
@@ -415,6 +464,7 @@ class StoreManager: NSObject, ObservableObject {
                         logger.info("No active subscriptions found during restore")
                     }
                     return
+>>>>>>> 510ee9d (more changes')
                 }
                 
                 // Process transactions
@@ -537,7 +587,11 @@ class StoreManager: NSObject, ObservableObject {
         // Calculate savings percentage
         let savingsPercentage = (1 - (monthlyEquivalent / monthlyPrice)) * 100
         
+<<<<<<< HEAD
+        return Int(NSDecimalNumber(decimal: savingsPercentage).doubleValue.rounded())
+=======
         return Int(savingsPercentage.rounded())
+>>>>>>> 510ee9d (more changes')
     }
     
     // MARK: - Environment Checks
@@ -555,7 +609,11 @@ class StoreManager: NSObject, ObservableObject {
             let receiptURLString = receiptURL.absoluteString
             isSandboxEnvironment = receiptURLString.contains("sandbox")
             
+<<<<<<< HEAD
+            logger.info("Receipt URL check: sandbox environment = \(self.isSandboxEnvironment)")
+=======
             logger.info("Receipt URL check: sandbox environment = \(isSandboxEnvironment)")
+>>>>>>> 510ee9d (more changes')
         }
     }
     
@@ -652,7 +710,11 @@ class StoreManager: NSObject, ObservableObject {
         
         // Update products
         DispatchQueue.main.async {
+<<<<<<< HEAD
+            self.products = [] // Mock products don't conform to Product protocol
+=======
             self.products = [mockMonthlyProduct, mockYearlyProduct]
+>>>>>>> 510ee9d (more changes')
             self.isLoading = false
             
             // In simulator, default to non-premium
@@ -687,8 +749,13 @@ class StoreManager: NSObject, ObservableObject {
         }
         
         func purchase(options: Set<Product.PurchaseOption> = []) async throws -> Product.PurchaseResult {
+<<<<<<< HEAD
+            // Simulate purchase success - this is just a mock for testing
+            throw NSError(domain: "MockStoreError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Mock purchase not implemented"])
+=======
             // Simulate purchase success
             return .success(MockVerificationResult())
+>>>>>>> 510ee9d (more changes')
         }
     }
     
@@ -732,7 +799,10 @@ extension Product.SubscriptionPeriod.Unit: @retroactive Identifiable {
         case .week: return 1
         case .month: return 2
         case .year: return 3
+<<<<<<< HEAD
+=======
         @unknown default: return 999
+>>>>>>> 510ee9d (more changes')
         }
     }
     
@@ -742,7 +812,10 @@ extension Product.SubscriptionPeriod.Unit: @retroactive Identifiable {
         case .week: return "week"
         case .month: return "month"
         case .year: return "year"
+<<<<<<< HEAD
+=======
         @unknown default: return "unknown"
+>>>>>>> 510ee9d (more changes')
         }
     }
 }
@@ -754,7 +827,11 @@ extension Product.ProductType: @retroactive Identifiable {
         case .nonConsumable: return 1
         case .autoRenewable: return 2
         case .nonRenewable: return 3
+<<<<<<< HEAD
+        default: return 999
+=======
         @unknown default: return 999
+>>>>>>> 510ee9d (more changes')
         }
     }
     
@@ -764,7 +841,11 @@ extension Product.ProductType: @retroactive Identifiable {
         case .nonConsumable: return "Non-Consumable"
         case .autoRenewable: return "Auto-Renewable Subscription"
         case .nonRenewable: return "Non-Renewable Subscription"
+<<<<<<< HEAD
+        default: return "Unknown"
+=======
         @unknown default: return "Unknown"
+>>>>>>> 510ee9d (more changes')
         }
     }
 }

@@ -8,10 +8,6 @@
 import Foundation
 import SwiftUI
 import Combine
-<<<<<<< HEAD
-import HealthKit
-=======
->>>>>>> 510ee9d (more changes')
 
 // MARK: - Enums and Supporting Types
 
@@ -64,10 +60,7 @@ enum GoalCategory: String, CaseIterable, Codable {
 
     var icon: String {
         switch self {
-<<<<<<< HEAD
-=======
         case .all: return "list.bullet"
->>>>>>> 510ee9d (more changes')
         case .fitness: return "figure.run"
         case .nutrition: return "leaf.fill"
         case .mindfulness: return "brain.head.profile"
@@ -82,10 +75,7 @@ enum GoalCategory: String, CaseIterable, Codable {
 
     var color: Color {
         switch self {
-<<<<<<< HEAD
-=======
         case .all: return .gray
->>>>>>> 510ee9d (more changes')
         case .fitness: return .blue
         case .nutrition: return .green
         case .mindfulness: return .purple
@@ -152,26 +142,14 @@ enum HealthMetricType: String, CaseIterable, Codable {
     case weight = "weight"
     case height = "height"
     case heartRate = "heart_rate"
-<<<<<<< HEAD
-    case restingHeartRate = "resting_heart_rate"
-=======
->>>>>>> 510ee9d (more changes')
     case bloodPressure = "blood_pressure"
     case steps = "steps"
     case activeEnergy = "active_energy"
     case sleepHours = "sleep_hours"
-<<<<<<< HEAD
-    case sleepQuality = "sleep_quality"
-=======
->>>>>>> 510ee9d (more changes')
     case mindfulMinutes = "mindful_minutes"
     case standHours = "stand_hours"
     case workouts = "workouts"
     case water = "water"
-<<<<<<< HEAD
-    case waterIntake = "water_intake"
-=======
->>>>>>> 510ee9d (more changes')
     case mood = "mood"
     case stress = "stress"
     case energy = "energy"
@@ -181,26 +159,14 @@ enum HealthMetricType: String, CaseIterable, Codable {
         case .weight: return "Weight"
         case .height: return "Height"
         case .heartRate: return "Heart Rate"
-<<<<<<< HEAD
-        case .restingHeartRate: return "Resting Heart Rate"
-=======
->>>>>>> 510ee9d (more changes')
         case .bloodPressure: return "Blood Pressure"
         case .steps: return "Steps"
         case .activeEnergy: return "Active Energy"
         case .sleepHours: return "Sleep Hours"
-<<<<<<< HEAD
-        case .sleepQuality: return "Sleep Quality"
-=======
->>>>>>> 510ee9d (more changes')
         case .mindfulMinutes: return "Mindful Minutes"
         case .standHours: return "Stand Hours"
         case .workouts: return "Workouts"
         case .water: return "Water Intake"
-<<<<<<< HEAD
-        case .waterIntake: return "Water Intake"
-=======
->>>>>>> 510ee9d (more changes')
         case .mood: return "Mood"
         case .stress: return "Stress Level"
         case .energy: return "Energy Level"
@@ -212,26 +178,14 @@ enum HealthMetricType: String, CaseIterable, Codable {
         case .weight: return "kg"
         case .height: return "cm"
         case .heartRate: return "bpm"
-<<<<<<< HEAD
-        case .restingHeartRate: return "bpm"
-=======
->>>>>>> 510ee9d (more changes')
         case .bloodPressure: return "mmHg"
         case .steps: return "steps"
         case .activeEnergy: return "cal"
         case .sleepHours: return "hours"
-<<<<<<< HEAD
-        case .sleepQuality: return "/10"
-=======
->>>>>>> 510ee9d (more changes')
         case .mindfulMinutes: return "min"
         case .standHours: return "hours"
         case .workouts: return "count"
         case .water: return "L"
-<<<<<<< HEAD
-        case .waterIntake: return "L"
-=======
->>>>>>> 510ee9d (more changes')
         case .mood: return "/10"
         case .stress: return "/10"
         case .energy: return "/10"
@@ -243,77 +197,19 @@ enum HealthMetricType: String, CaseIterable, Codable {
         case .weight: return "scalemass.fill"
         case .height: return "ruler.fill"
         case .heartRate: return "heart.fill"
-<<<<<<< HEAD
-        case .restingHeartRate: return "heart.circle.fill"
-=======
->>>>>>> 510ee9d (more changes')
         case .bloodPressure: return "drop.fill"
         case .steps: return "figure.walk"
         case .activeEnergy: return "flame.fill"
         case .sleepHours: return "bed.double.fill"
-<<<<<<< HEAD
-        case .sleepQuality: return "moon.fill"
-=======
->>>>>>> 510ee9d (more changes')
         case .mindfulMinutes: return "brain.head.profile"
         case .standHours: return "figure.stand"
         case .workouts: return "figure.run"
         case .water: return "drop.fill"
-<<<<<<< HEAD
-        case .waterIntake: return "drop.circle.fill"
-=======
->>>>>>> 510ee9d (more changes')
         case .mood: return "face.smiling.fill"
         case .stress: return "exclamationmark.triangle.fill"
         case .energy: return "bolt.fill"
         }
     }
-<<<<<<< HEAD
-
-    /// HealthKit types to read for data collection
-    static var healthKitTypesToRead: Set<HealthMetricType> {
-        return [
-            .weight, .height, .heartRate, .restingHeartRate, .bloodPressure,
-            .steps, .activeEnergy, .sleepHours, .sleepQuality, .mindfulMinutes,
-            .standHours, .workouts, .water, .waterIntake
-        ]
-    }
-
-    /// Get the corresponding HealthKit type for this metric
-    var healthKitType: HKObjectType? {
-        switch self {
-        case .weight:
-            return HKQuantityType.quantityType(forIdentifier: .bodyMass)
-        case .height:
-            return HKQuantityType.quantityType(forIdentifier: .height)
-        case .heartRate:
-            return HKQuantityType.quantityType(forIdentifier: .heartRate)
-        case .restingHeartRate:
-            return HKQuantityType.quantityType(forIdentifier: .restingHeartRate)
-        case .bloodPressure:
-            return HKQuantityType.quantityType(forIdentifier: .bloodPressureSystolic)
-        case .steps:
-            return HKQuantityType.quantityType(forIdentifier: .stepCount)
-        case .activeEnergy:
-            return HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)
-        case .sleepHours:
-            return HKCategoryType.categoryType(forIdentifier: .sleepAnalysis)
-        case .sleepQuality:
-            return HKCategoryType.categoryType(forIdentifier: .sleepAnalysis)
-        case .mindfulMinutes:
-            return HKCategoryType.categoryType(forIdentifier: .mindfulSession)
-        case .standHours:
-            return HKQuantityType.quantityType(forIdentifier: .appleStandHour)
-        case .workouts:
-            return HKWorkoutType.workoutType()
-        case .water, .waterIntake:
-            return HKQuantityType.quantityType(forIdentifier: .dietaryWater)
-        case .mood, .stress, .energy:
-            return nil // These are custom metrics not directly from HealthKit
-        }
-    }
-=======
->>>>>>> 510ee9d (more changes')
 }
 
 /// Audio session category enumeration
@@ -346,10 +242,7 @@ enum AudioCategory: String, CaseIterable, Codable {
 
     var icon: String {
         switch self {
-<<<<<<< HEAD
-=======
         case .all: return "list.bullet"
->>>>>>> 510ee9d (more changes')
         case .meditation: return "brain.head.profile"
         case .sleep: return "bed.double.fill"
         case .focus: return "target"
@@ -475,10 +368,7 @@ enum InsightCategory: String, CaseIterable, Codable {
 
     var icon: String {
         switch self {
-<<<<<<< HEAD
-=======
         case .all: return "list.bullet"
->>>>>>> 510ee9d (more changes')
         case .trend: return "chart.line.uptrend.xyaxis"
         case .correlation: return "link"
         case .achievement: return "trophy.fill"

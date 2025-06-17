@@ -177,7 +177,11 @@ class UserProfileManager: ObservableObject {
             ]
         ]
         
+<<<<<<< HEAD
+        newProfile.userPreferences = defaultPreferences
+=======
         newProfile.userPreferences = defaultPreferences as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Set default notification preferences
         let defaultNotificationPreferences: [String: Bool] = [
@@ -396,7 +400,11 @@ class UserProfileManager: ObservableObject {
         // Save to user preferences
         var preferences = profile.userPreferences as? [String: Any] ?? [:]
         preferences["preferredCategories"] = categories.map { $0.rawValue }
+<<<<<<< HEAD
+        profile.userPreferences = preferences
+=======
         profile.userPreferences = preferences as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Save context
         do {
@@ -416,7 +424,11 @@ class UserProfileManager: ObservableObject {
         
         // Update profile
         preferredAudioCategories = categories
+<<<<<<< HEAD
+        profile.preferredAudioCategories = categories.map { $0.rawValue }
+=======
         profile.preferredAudioCategories = categories.map { $0.rawValue } as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Save context
         do {
@@ -464,7 +476,11 @@ class UserProfileManager: ObservableObject {
         // Update user preferences
         var preferences = profile.userPreferences as? [String: Any] ?? [:]
         preferences["theme"] = theme
+<<<<<<< HEAD
+        profile.userPreferences = preferences
+=======
         profile.userPreferences = preferences as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Save context
         do {
@@ -488,7 +504,11 @@ class UserProfileManager: ObservableObject {
         // Update user preferences
         var preferences = profile.userPreferences as? [String: Any] ?? [:]
         preferences["measurementSystem"] = system
+<<<<<<< HEAD
+        profile.userPreferences = preferences
+=======
         profile.userPreferences = preferences as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Save context
         do {
@@ -513,7 +533,11 @@ class UserProfileManager: ObservableObject {
         notificationTimes[key] = [hour, minute]
         preferences["notificationTimes"] = notificationTimes
         
+<<<<<<< HEAD
+        profile.userPreferences = preferences
+=======
         profile.userPreferences = preferences as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Save context
         do {
@@ -564,7 +588,11 @@ class UserProfileManager: ObservableObject {
         // Update user preferences
         var preferences = profile.userPreferences as? [String: Any] ?? [:]
         preferences["doNotDisturbWindows"] = windowsData
+<<<<<<< HEAD
+        profile.userPreferences = preferences
+=======
         profile.userPreferences = preferences as NSObject
+>>>>>>> 510ee9d (more changes')
         
         // Save context
         do {
@@ -579,7 +607,11 @@ class UserProfileManager: ObservableObject {
     func getDoNotDisturbWindows() -> [(start: DateComponents, end: DateComponents)] {
         guard let profile = userProfile else { return [] }
         
+<<<<<<< HEAD
+        if let preferences = profile.userPreferences as [String: Any]?,
+=======
         if let preferences = profile.userPreferences as? [String: Any],
+>>>>>>> 510ee9d (more changes')
            let windowsData = preferences["doNotDisturbWindows"] as? [[String: [Int]]] {
             
             var windows: [(start: DateComponents, end: DateComponents)] = []
@@ -659,8 +691,13 @@ class UserProfileManager: ObservableObject {
         return GoalViewModel(
             id: id,
             title: title,
+<<<<<<< HEAD
+            description: goal.desc,
+            category: GoalCategory(rawValue: goal.category ?? "other") ?? .other,
+=======
             description: nil,
             category: GoalCategory(rawValue: goal.category ?? "Other") ?? .other,
+>>>>>>> 510ee9d (more changes')
             targetValue: goal.targetValue,
             currentValue: goal.currentProgress,
             unit: goal.unit,
@@ -669,7 +706,11 @@ class UserProfileManager: ObservableObject {
             isCompleted: goal.isCompleted,
             progress: progress,
             createdDate: goal.creationDate ?? Date(),
+<<<<<<< HEAD
+            lastUpdated: goal.creationDate ?? Date()
+=======
             lastUpdated: goal.lastUpdatedDate ?? Date()
+>>>>>>> 510ee9d (more changes')
         )
     }
     
@@ -694,7 +735,11 @@ class UserProfileManager: ObservableObject {
         goal.creationDate = Date()
         goal.isActive = true
         goal.isCompleted = false
+<<<<<<< HEAD
+        goal.status = GoalStatus.inProgress.rawValue
+=======
         goal.status = GoalStatus.active.rawValue
+>>>>>>> 510ee9d (more changes')
         goal.userProfile = profile
         
         // Save context
@@ -876,7 +921,11 @@ class UserProfileManager: ObservableObject {
     /// Update streak for a goal
     private func updateStreak(for goal: Goal) {
         guard let context = viewContext,
+<<<<<<< HEAD
+              let _ = goal.id,
+=======
               let goalId = goal.id,
+>>>>>>> 510ee9d (more changes')
               let category = goal.category else {
             return
         }
@@ -1047,7 +1096,11 @@ class UserProfileManager: ObservableObject {
                 
                 let month = calendar.component(.month, from: date)
                 let year = calendar.component(.year, from: date)
+<<<<<<< HEAD
+                let _ = "\(year)-\(month)"
+=======
                 let monthKey = "\(year)-\(month)"
+>>>>>>> 510ee9d (more changes')
                 
                 // Normalize progress as percentage of target
                 let normalizedProgress = goal.targetValue > 0 ? (entry.value / goal.targetValue) : 0
@@ -1204,7 +1257,11 @@ class UserProfileManager: ObservableObject {
             "marketing": false
         ]
         
+<<<<<<< HEAD
+        preferredCategories = [.fitness, .mindfulness, .sleep]
+=======
         preferredCategories = [.physical, .mindfulness, .sleep]
+>>>>>>> 510ee9d (more changes')
         preferredAudioCategories = [.meditation, .sleep, .focus]
         
         // Set mock onboarding status
@@ -1215,6 +1272,19 @@ class UserProfileManager: ObservableObject {
             GoalViewModel(
                 id: UUID(),
                 title: "Daily Steps",
+<<<<<<< HEAD
+                description: "Walk 10,000 steps daily",
+                category: .fitness,
+                targetValue: 10000,
+                currentValue: 7500,
+                unit: "steps",
+                frequency: .daily,
+                dueDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
+                isCompleted: false,
+                progress: 0.75,
+                createdDate: Date(),
+                lastUpdated: Date()
+=======
                 category: .physical,
                 progress: 0.75,
                 currentValue: 7500,
@@ -1223,10 +1293,24 @@ class UserProfileManager: ObservableObject {
                 dueDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
                 isCompleted: false,
                 streak: 5
+>>>>>>> 510ee9d (more changes')
             ),
             GoalViewModel(
                 id: UUID(),
                 title: "Meditation",
+<<<<<<< HEAD
+                description: "Meditate for 10 minutes daily",
+                category: .mindfulness,
+                targetValue: 10,
+                currentValue: 15,
+                unit: "min",
+                frequency: .daily,
+                dueDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
+                isCompleted: true,
+                progress: 1.0,
+                createdDate: Date(),
+                lastUpdated: Date()
+=======
                 category: .mindfulness,
                 progress: 1.0,
                 currentValue: 15,
@@ -1235,10 +1319,24 @@ class UserProfileManager: ObservableObject {
                 dueDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
                 isCompleted: true,
                 streak: 12
+>>>>>>> 510ee9d (more changes')
             ),
             GoalViewModel(
                 id: UUID(),
                 title: "Sleep Duration",
+<<<<<<< HEAD
+                description: "Get 8 hours of sleep nightly",
+                category: .sleep,
+                targetValue: 8,
+                currentValue: 7,
+                unit: "hours",
+                frequency: .daily,
+                dueDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
+                isCompleted: false,
+                progress: 0.88,
+                createdDate: Date(),
+                lastUpdated: Date()
+=======
                 category: .sleep,
                 progress: 0.88,
                 currentValue: 7,
@@ -1247,6 +1345,7 @@ class UserProfileManager: ObservableObject {
                 dueDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
                 isCompleted: false,
                 streak: 3
+>>>>>>> 510ee9d (more changes')
             )
         ]
         
@@ -1254,6 +1353,19 @@ class UserProfileManager: ObservableObject {
             GoalViewModel(
                 id: UUID(),
                 title: "Weekly Workout",
+<<<<<<< HEAD
+                description: "Complete 3 workout sessions per week",
+                category: .fitness,
+                targetValue: 3,
+                currentValue: 3,
+                unit: "sessions",
+                frequency: .weekly,
+                dueDate: Calendar.current.date(byAdding: .day, value: -1, to: Date()),
+                isCompleted: true,
+                progress: 1.0,
+                createdDate: Date(),
+                lastUpdated: Date()
+=======
                 category: .physical,
                 progress: 1.0,
                 currentValue: 3,
@@ -1262,10 +1374,24 @@ class UserProfileManager: ObservableObject {
                 dueDate: Calendar.current.date(byAdding: .day, value: -1, to: Date()),
                 isCompleted: true,
                 streak: 4
+>>>>>>> 510ee9d (more changes')
             ),
             GoalViewModel(
                 id: UUID(),
                 title: "Drink Water",
+<<<<<<< HEAD
+                description: "Drink 2000ml of water daily",
+                category: .nutrition,
+                targetValue: 2000,
+                currentValue: 2000,
+                unit: "ml",
+                frequency: .daily,
+                dueDate: Calendar.current.date(byAdding: .day, value: -1, to: Date()),
+                isCompleted: true,
+                progress: 1.0,
+                createdDate: Date(),
+                lastUpdated: Date()
+=======
                 category: .nutrition,
                 progress: 1.0,
                 currentValue: 2000,
@@ -1274,6 +1400,7 @@ class UserProfileManager: ObservableObject {
                 dueDate: Calendar.current.date(byAdding: .day, value: -1, to: Date()),
                 isCompleted: true,
                 streak: 7
+>>>>>>> 510ee9d (more changes')
             )
         ]
         

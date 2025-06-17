@@ -6,12 +6,22 @@
 //
 
 import SwiftUI
+<<<<<<< HEAD
+import CoreData
+=======
+>>>>>>> 510ee9d (more changes')
 import HealthKit
 import AVFoundation
 
 struct ContentView: View {
     // MARK: - Environment & State
     
+<<<<<<< HEAD
+    /// Core Data managed object context
+    @Environment(\.managedObjectContext) private var viewContext
+    
+=======
+>>>>>>> 510ee9d (more changes')
     /// Access to environment objects from app
     @EnvironmentObject private var healthKitManager: HealthKitManager
     @EnvironmentObject private var notificationManager: NotificationManager
@@ -45,6 +55,17 @@ struct ContentView: View {
     
     /// Initialize managers with Core Data context
     private func initializeManagers() {
+<<<<<<< HEAD
+        // Set Core Data context for managers
+        healthKitManager.setViewContext(viewContext)
+        notificationManager.setViewContext(viewContext)
+        audioManager.setViewContext(viewContext)
+        mlManager.setViewContext(viewContext)
+        storeManager.setViewContext(viewContext)
+        userProfileManager.setViewContext(viewContext)
+        
+=======
+>>>>>>> 510ee9d (more changes')
         // Check onboarding status
         hasCompletedOnboarding = userProfileManager.hasCompletedOnboarding
         
@@ -739,6 +760,10 @@ struct WelcomeBackView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+<<<<<<< HEAD
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+=======
+>>>>>>> 510ee9d (more changes')
             .environmentObject(HealthKitManager())
             .environmentObject(NotificationManager())
             .environmentObject(AudioManager())

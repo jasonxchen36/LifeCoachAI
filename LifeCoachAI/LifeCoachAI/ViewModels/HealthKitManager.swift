@@ -106,7 +106,12 @@ class HealthKitManager: ObservableObject {
         }
         
         // Define the types to read
+<<<<<<< HEAD
+        let healthMetricTypesToRead = HealthMetricType.healthKitTypesToRead
+        let typesToRead = Set(healthMetricTypesToRead.compactMap { $0.healthKitType })
+=======
         let typesToRead = HealthMetricType.healthKitTypesToRead
+>>>>>>> 510ee9d (more changes')
         
         // Define the types to share (write) if needed
         var typesToShare: Set<HKSampleType> = []
@@ -1893,9 +1898,17 @@ class HealthKitManager: ObservableObject {
             id: UUID(),
             type: type,
             value: value,
+<<<<<<< HEAD
+            unit: type.unit,
+            date: now,
+            trend: nil, // TODO: Calculate trend based on historical data
+            weeklyAverage: nil, // TODO: Calculate weekly average
+            monthlyAverage: nil // TODO: Calculate monthly average
+=======
             date: now,
             previousValue: previousValue,
             goalValue: goalValue
+>>>>>>> 510ee9d (more changes')
         )
     }
     
@@ -1920,7 +1933,11 @@ class HealthKitManager: ObservableObject {
     /// Get health metrics for a specific category
     func getHealthMetrics(for category: GoalCategory) -> [HealthMetricViewModel] {
         switch category {
+<<<<<<< HEAD
+        case .fitness:
+=======
         case .physical:
+>>>>>>> 510ee9d (more changes')
             return [
                 getHealthMetricViewModel(for: .steps),
                 getHealthMetricViewModel(for: .activeEnergy),
@@ -1977,6 +1994,10 @@ class HealthKitManager: ObservableObject {
             return availableDataTypes.contains(.restingHeartRate)
         case .bloodPressure:
             return availableDataTypes.contains(.bloodPressureSystolic)
+<<<<<<< HEAD
+        default:
+            return false
+=======
         case .oxygenSaturation:
             return availableDataTypes.contains(.oxygenSaturation)
         case .respiratoryRate:
@@ -1985,6 +2006,7 @@ class HealthKitManager: ObservableObject {
             return availableDataTypes.contains(.bodyFatPercentage)
         case .bmi:
             return availableDataTypes.contains(.bodyMassIndex)
+>>>>>>> 510ee9d (more changes')
         }
     }
 }

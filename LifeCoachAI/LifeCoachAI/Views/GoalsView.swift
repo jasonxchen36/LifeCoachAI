@@ -6,17 +6,32 @@
 //
 
 import SwiftUI
+<<<<<<< HEAD
+import CoreData
+import Charts
+=======
+>>>>>>> 510ee9d (more changes')
 
 struct GoalsView: View {
     // MARK: - Environment & State
     
+<<<<<<< HEAD
+    /// Core Data managed object context
+    @Environment(\.managedObjectContext) private var viewContext
+    
+=======
+>>>>>>> 510ee9d (more changes')
     /// Access to environment objects
     @EnvironmentObject private var userProfileManager: UserProfileManager
     @EnvironmentObject private var storeManager: StoreManager
     @EnvironmentObject private var notificationManager: NotificationManager
     
     /// View state
+<<<<<<< HEAD
+    @State private var selectedCategory: GoalCategory = .all
+=======
     @State private var selectedCategory: LifeCoachAI.GoalCategory = .all
+>>>>>>> 510ee9d (more changes')
     @State private var searchText = ""
     @State private var showAddGoalSheet = false
     @State private var showEditGoalSheet = false
@@ -24,7 +39,11 @@ struct GoalsView: View {
     @State private var showAchievementAnimation = false
     @State private var recentlyCompletedGoal: Goal?
     @State private var showFilters = false
+<<<<<<< HEAD
+    @State private var sortOption: GoalSortOption = .priority
+=======
     @State private var sortOption: LifeCoachAI.GoalSortOption = .priority
+>>>>>>> 510ee9d (more changes')
     
     // MARK: - Computed Properties
     
@@ -98,7 +117,11 @@ struct GoalsView: View {
         }
         
         let totalProgress = activeGoals.reduce(0.0) { sum, goal in
+<<<<<<< HEAD
+            return sum + (goal.progress / 100.0)
+=======
             return sum + (goal.progress / 100.0) // Assuming progress is 0-100
+>>>>>>> 510ee9d (more changes')
         }
         
         return (totalProgress / Double(activeGoals.count)) * 100.0
@@ -241,7 +264,11 @@ struct GoalsView: View {
                             .foregroundColor(Color("SecondaryText"))
                         
                         Picker("Sort", selection: $sortOption) {
+<<<<<<< HEAD
+                            ForEach(GoalSortOption.allCases, id: \.self) { option in
+=======
                             ForEach(LifeCoachAI.GoalSortOption.allCases, id: \.self) { option in
+>>>>>>> 510ee9d (more changes')
                                 Text(option.displayName).tag(option)
                             }
                         }
@@ -477,7 +504,11 @@ struct GoalsView: View {
     private var categoryFilter: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
+<<<<<<< HEAD
+                ForEach(GoalCategory.allCases, id: \.self) { category in
+=======
                 ForEach(LifeCoachAI.GoalCategory.allCases, id: \.self) { category in
+>>>>>>> 510ee9d (more changes')
                     Button(action: {
                         withAnimation {
                             selectedCategory = category
@@ -771,19 +802,31 @@ struct GoalsView: View {
 
 struct AddGoalView: View {
     @Environment(\.presentationMode) private var presentationMode
+<<<<<<< HEAD
+    @Environment(\.managedObjectContext) private var viewContext
+=======
+>>>>>>> 510ee9d (more changes')
     @EnvironmentObject private var userProfileManager: UserProfileManager
     @EnvironmentObject private var notificationManager: NotificationManager
     
     @State private var title = ""
     @State private var description = ""
+<<<<<<< HEAD
+    @State private var category: GoalCategory = .health
+=======
     @State private var category: LifeCoachAI.GoalCategory = .health
+>>>>>>> 510ee9d (more changes')
     @State private var targetValue: Double = 0
     @State private var unit = ""
     @State private var dueDate = Date().addingTimeInterval(60*60*24*7) // One week from now
     @State private var priority: Double = 1
     @State private var enableReminders = false
     @State private var reminderTime = Date()
+<<<<<<< HEAD
+    @State private var frequency: GoalFrequency = .daily
+=======
     @State private var frequency: LifeCoachAI.GoalFrequency = .daily
+>>>>>>> 510ee9d (more changes')
     
     var body: some View {
         NavigationView {
@@ -795,13 +838,21 @@ struct AddGoalView: View {
                         .frame(height: 80)
                     
                     Picker("Category", selection: $category) {
+<<<<<<< HEAD
+                        ForEach(GoalCategory.allCases.filter { $0 != .all }, id: \.self) { category in
+=======
                         ForEach(LifeCoachAI.GoalCategory.allCases.filter { $0 != .all }, id: \.self) { category in
+>>>>>>> 510ee9d (more changes')
                             Text(category.displayName).tag(category)
                         }
                     }
                     
                     Picker("Frequency", selection: $frequency) {
+<<<<<<< HEAD
+                        ForEach(GoalFrequency.allCases, id: \.self) { frequency in
+=======
                         ForEach(LifeCoachAI.GoalFrequency.allCases, id: \.self) { frequency in
+>>>>>>> 510ee9d (more changes')
                             Text(frequency.displayName).tag(frequency)
                         }
                     }
@@ -892,6 +943,10 @@ struct AddGoalView: View {
 
 struct EditGoalView: View {
     @Environment(\.presentationMode) private var presentationMode
+<<<<<<< HEAD
+    @Environment(\.managedObjectContext) private var viewContext
+=======
+>>>>>>> 510ee9d (more changes')
     @EnvironmentObject private var userProfileManager: UserProfileManager
     @EnvironmentObject private var notificationManager: NotificationManager
     
@@ -899,7 +954,11 @@ struct EditGoalView: View {
     
     @State private var title: String
     @State private var description: String
+<<<<<<< HEAD
+    @State private var category: GoalCategory
+=======
     @State private var category: LifeCoachAI.GoalCategory
+>>>>>>> 510ee9d (more changes')
     @State private var targetValue: Double
     @State private var unit: String
     @State private var dueDate: Date
@@ -907,7 +966,11 @@ struct EditGoalView: View {
     @State private var progress: Double
     @State private var enableReminders: Bool
     @State private var reminderTime: Date
+<<<<<<< HEAD
+    @State private var frequency: GoalFrequency
+=======
     @State private var frequency: LifeCoachAI.GoalFrequency
+>>>>>>> 510ee9d (more changes')
     @State private var showDeleteConfirmation = false
     
     init(goal: Goal) {
@@ -916,7 +979,11 @@ struct EditGoalView: View {
         // Initialize state variables with goal properties
         _title = State(initialValue: goal.title ?? "")
         _description = State(initialValue: goal.description ?? "")
+<<<<<<< HEAD
+        _category = State(initialValue: GoalCategory(rawValue: goal.category ?? "health") ?? .health)
+=======
         _category = State(initialValue: LifeCoachAI.GoalCategory(rawValue: goal.category ?? "health") ?? .health)
+>>>>>>> 510ee9d (more changes')
         _targetValue = State(initialValue: goal.targetValue)
         _unit = State(initialValue: goal.unit ?? "")
         _dueDate = State(initialValue: goal.dueDate ?? Date().addingTimeInterval(60*60*24*7))
@@ -924,7 +991,11 @@ struct EditGoalView: View {
         _progress = State(initialValue: goal.progress)
         _enableReminders = State(initialValue: goal.hasReminder)
         _reminderTime = State(initialValue: goal.reminderTime ?? Date())
+<<<<<<< HEAD
+        _frequency = State(initialValue: GoalFrequency(rawValue: goal.frequency ?? "daily") ?? .daily)
+=======
         _frequency = State(initialValue: LifeCoachAI.GoalFrequency(rawValue: goal.frequency ?? "daily") ?? .daily)
+>>>>>>> 510ee9d (more changes')
     }
     
     var body: some View {
@@ -937,13 +1008,21 @@ struct EditGoalView: View {
                         .frame(height: 80)
                     
                     Picker("Category", selection: $category) {
+<<<<<<< HEAD
+                        ForEach(GoalCategory.allCases.filter { $0 != .all }, id: \.self) { category in
+=======
                         ForEach(LifeCoachAI.GoalCategory.allCases.filter { $0 != .all }, id: \.self) { category in
+>>>>>>> 510ee9d (more changes')
                             Text(category.displayName).tag(category)
                         }
                     }
                     
                     Picker("Frequency", selection: $frequency) {
+<<<<<<< HEAD
+                        ForEach(GoalFrequency.allCases, id: \.self) { frequency in
+=======
                         ForEach(LifeCoachAI.GoalFrequency.allCases, id: \.self) { frequency in
+>>>>>>> 510ee9d (more changes')
                             Text(frequency.displayName).tag(frequency)
                         }
                     }
@@ -1078,15 +1157,34 @@ struct EditGoalView: View {
                 frequency: frequency
             )
         } else {
+<<<<<<< HEAD
+            notificationManager.removeReminders(for: goal.id?.uuidString ?? "")
+=======
             notificationManager.removeReminders(for: goal.id.uuidString)
+>>>>>>> 510ee9d (more changes')
         }
     }
 }
 
+<<<<<<< HEAD
+// MARK: - Supporting Types
+
+// Note: Goal-related enums are defined in DataModels.swift
+
+// MARK: - Goal Extensions
+
+// Note: Goal extensions are defined in DataModels.swift
+
+=======
+>>>>>>> 510ee9d (more changes')
 // MARK: - Preview
 struct GoalsView_Previews: PreviewProvider {
     static var previews: some View {
         GoalsView()
+<<<<<<< HEAD
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+=======
+>>>>>>> 510ee9d (more changes')
             .environmentObject(UserProfileManager())
             .environmentObject(StoreManager())
             .environmentObject(NotificationManager())
